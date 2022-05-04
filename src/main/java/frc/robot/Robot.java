@@ -206,8 +206,8 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    m_robotContainer.driveBaseSubsystem.m_leftMaster.setSafetyEnabled(true);
-    m_robotContainer.driveBaseSubsystem.m_rightMaster.setSafetyEnabled(true);
+    m_robotContainer.driveBaseSubsystem.setMotorSafetyEnabled(true);
+    m_robotContainer.driveBaseSubsystem.setMotorSafetyEnabled(true);
     m_robotContainer.botState.StealthMode = 
         ("Stealthy" == m_robotContainer.dashboardSubsystem.m_stealthMode.getSelected());
     

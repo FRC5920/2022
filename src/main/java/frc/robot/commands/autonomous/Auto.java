@@ -52,18 +52,19 @@
 package frc.robot.commands.autonomous;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.driveBase.WestCoastDriveSubsystem;
+import frc.robot.subsystems.driveBase.WestCoastDriveTrain;
+import frc.robot.subsystems.driveBase.WestCoastDriveTrain.MotorStopBehavior;
 
-import edu.wpi.first.wpilibj.Timer;
+//import edu.wpi.first.wpilibj.Timer;
 
 public class Auto extends CommandBase {
-  WestCoastDriveSubsystem m_driveBaseSubsystem;
+  WestCoastDriveTrain m_driveBaseSubsystem;
   int driveStage = 0;
   boolean IsDone;
   double startimer;
 
   /** Creates a new Auto. */
-  public Auto(WestCoastDriveSubsystem driveBaseSubsystem) {
+  public Auto(WestCoastDriveTrain driveBaseSubsystem) {
     m_driveBaseSubsystem = driveBaseSubsystem;
     addRequirements(driveBaseSubsystem);
   }
@@ -72,14 +73,14 @@ public class Auto extends CommandBase {
   @Override
   public void initialize() {
     m_driveBaseSubsystem.resetEncoders();
-    m_driveBaseSubsystem.BrakeMode();
+    m_driveBaseSubsystem.setMotorStopBehavior(MotorStopBehavior.Brake);
     IsDone = false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
+    /*
     switch (driveStage) {
       case 0:
         if (m_driveBaseSubsystem.m_rightMaster.getSelectedSensorPosition() < 79000) {
@@ -102,6 +103,7 @@ public class Auto extends CommandBase {
         IsDone = true;
         break;
     }
+    */
   }
 
   // Called once the command ends or is interrupted.

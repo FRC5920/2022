@@ -49,82 +49,48 @@
 |                         .OOOOOOOOOOOOOOOOOOOOOOOOOOOOOO                      |
 \-----------------------------------------------------------------------------*/
 
-package frc.robot.commands;
+package frc.robot.subsystems.driveBase;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+/**
+ * A helper class used to calculate values in a drive train power budget
+ */
+public class DriveTrainPowerBudget {
 
-import frc.robot.Constants;
-import frc.robot.RobotContainer;
-import frc.robot.subsystems.driveBase.WestCoastDriveTrain;
-import frc.robot.subsystems.joystick.JoystickSubsystem;
-import frc.robot.subsystems.runtimeState.BotStateSubsystem;
-import frc.robot.subsystems.runtimeState.BotStateSubsystem.RobotDirection;;
-
-public class DriveByJoysticks extends CommandBase {
-  private BotStateSubsystem m_botState;
-  private JoystickSubsystem m_joystickSubsystem;
-  private WestCoastDriveTrain m_driveBaseSubsystem;
-  private double m_drivePowerModifer = 1;
-
-  /////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////
+  /// *** CONSTANTS ***
+  //////////////////////////////////
+  
   /**
-   * Creates an instance of the command
-   * 
-   * @param muzzleVelocity Speed to fire the ball
-   * @param botContainer       Object providing access to robot subsystems
-   * @param fireButton     Joystick button used to fire in manual tele-operated
-   *                       mode
+   * Time (Seconds) that motor current must exceed maximum before current limiting occurs
    */
-  public DriveByJoysticks(RobotContainer botContainer) {
-    m_botState = botContainer.botState;
-    m_driveBaseSubsystem = botContainer.driveBaseSubsystem;
-    m_joystickSubsystem = botContainer.joystickSubsystem;
+  public final double kMotorCurrentLimitHoldoffSec = 0.05;
 
-    // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_botState, m_driveBaseSubsystem, m_joystickSubsystem);
+  /**
+   * Threshold (as % of max motor current) above which current limiting is applied (0.0 to 1.0)
+   */
+  public final double kCurrentLimitThresholdPercent = 0.95;
+
+  /** Current limit (Amps) applied to each drive motor */
+  private double m_motorCurrentLimitAmps;
+
+  /** Current limiting threshold (Amps) applied to each drive motor */
+  private double m_motorCurrentLimitThresholdAmps;
+
+  /**
+   * Creates an instance of the object for a given current budget and ramp time
+   * 
+   * @param totalCurrentBudgetAmps  Total amount of current available to robot motors
+   * @param rampTimeSec  Ramp time in seconds to apply to motor current changes or 0.0 for no ramp
+   */
+  public DriveTrainPowerBudget(double totalCurrentBudgetAmps, int numMotors, double rampTimeSec) {
+    double currentBudgetAmps = totalCurrentBudgetAmps; // was Constants.BatteryBudget.kDriveMotorCurrentAmps;
+    m_motorCurrentLimitAmps = currentBudgetAmps / numMotors;
+    m_motorCurrentLimitThresholdAmps = m_motorCurrentLimitAmps * kCurrentLimitThresholdPercent;
   }
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
-  }
+  /** Returns the current limit (in Amperes) for a single motor */
+  public double motorLimitAmps() { return m_motorCurrentLimitAmps; }
 
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
-    // TODO: move dashboard code in DriveByJoystick into the DashboardSubsystem
-    if (m_joystickSubsystem.driverController.bumpRight.get()) {
-      m_drivePowerModifer = Constants.MotorScaler.DriveMidLimit;
-      SmartDashboard.putString("Speed", "Medium");
-    } else {
-      if (m_joystickSubsystem.driverController.bumpLeft.get()) {
-        m_drivePowerModifer = Constants.MotorScaler.DriveSlowLimit;
-        SmartDashboard.putString("Speed", "Slow");
-      } else {
-        m_drivePowerModifer = Constants.MotorScaler.DriveStandardLimit;
-        SmartDashboard.putString("Speed", "Normal");
-      }
-    }
-
-    double leftY = m_joystickSubsystem.driverController.leftStickY();
-    double rightY = m_joystickSubsystem.driverController.rightStickY();
-    double leftVolts = (m_botState.DriveDirection == RobotDirection.Forward) ? rightY : leftY;
-    double rightVolts = (m_botState.DriveDirection == RobotDirection.Forward) ? leftY : rightY;
-
-    m_driveBaseSubsystem.tankDriveVolts(m_drivePowerModifer * leftVolts, 
-                                        m_drivePowerModifer * rightVolts);
-  }
-
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {
-    m_driveBaseSubsystem.tankDriveVolts(0, 0);
-  }
-
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
+  /** Returns the current limiting threshold in Amperes for a motor */
+  public double motorLimitThresholdAmps() { return m_motorCurrentLimitThresholdAmps; }
 }

@@ -65,7 +65,7 @@
 package frc.robot;
 
 import frc.robot.commands.DriveByJoysticks;
-import frc.robot.subsystems.driveBase.WestCoastDriveSubsystem;
+import frc.robot.subsystems.driveBase.WestCoastDriveTrain;
 import frc.robot.subsystems.joystick.JoystickSubsystem;
 import frc.robot.subsystems.dashboard.DashboardSubsystem;
 import frc.robot.subsystems.runtimeState.BotStateSubsystem;
@@ -84,7 +84,7 @@ public class RobotContainer {
   // ----------------------------------
   public JoystickSubsystem joystickSubsystem;
   public BotStateSubsystem botState;
-  public WestCoastDriveSubsystem driveBaseSubsystem;
+  public WestCoastDriveTrain driveBaseSubsystem;
   public DashboardSubsystem dashboardSubsystem;
 
   /**
@@ -93,7 +93,7 @@ public class RobotContainer {
   public RobotContainer() {
     joystickSubsystem = new JoystickSubsystem();
     botState = new BotStateSubsystem();
-    driveBaseSubsystem = new WestCoastDriveSubsystem();
+    driveBaseSubsystem = new WestCoastDriveTrain();
     dashboardSubsystem = new DashboardSubsystem(this);
 
     // Configure the button bindings
