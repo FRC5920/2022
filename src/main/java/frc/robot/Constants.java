@@ -210,9 +210,9 @@ public class Constants {
 		public static final double kClimberSpeed = 0.75; // 1.0;
 		public static final double SlowSpeedLimit = 0.25;
 		public static final double StandardSpeedLimit = 1;
-		public static final double DriveStandardLimit = 1;
-		public static final double DriveMidLimit = 0.6;
-		public static final double DriveSlowLimit = 0.5;
+		public static final double DriveStandardLimit = 11;
+		public static final double DriveMidLimit = 6;
+		public static final double DriveSlowLimit = 4;
 	}
 
 	public static final class ShooterConstants {
@@ -231,17 +231,17 @@ public class Constants {
 	// Motor identification
 	public static final class MotorID {
 		public static final int leftDriveMaster = 1; // Falcon 500
-		public static final int leftDriveSlave = 11; // Falcon 500
+		//public static final int leftDriveSlave = 11; // Falcon 500
 		public static final int rightDriveMaster = 2; // Falcon 500
-		public static final int rightDriveSlave = 12; // Falcon 500
-		public static final int tRexMaster = 4; // Falcon 500
-		public static final int tRexSlave = 14; // Falcon 500
-		public static final int climberMaster = 5; // Falcon 500
-		public static final int climberSlave = 15; // Falcon 500
-		public static final int flywheel = 16; // Falcon 500
-		public static final int intakeMotor = 32; // SRX 775
-		public static final int indexMotor = 20; // Falcon 500
-		public static final int intakeActuator = 31; // Falcon 500
+		//public static final int rightDriveSlave = 12; // Falcon 500
+	//	public static final int tRexMaster = 4; // Falcon 500
+	//	public static final int tRexSlave = 14; // Falcon 500
+	//	public static final int climberMaster = 5; // Falcon 500
+	//	public static final int climberSlave = 15; // Falcon 500
+	//	public static final int flywheel = 16; // Falcon 500
+	//	public static final int intakeMotor = 32; // SRX 775
+	//	public static final int indexMotor = 20; // Falcon 500
+		public static final int intakeActuator = 3; // Falcon 500
 	}
 
 }
