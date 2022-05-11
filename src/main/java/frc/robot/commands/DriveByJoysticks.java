@@ -109,11 +109,11 @@ public class DriveByJoysticks extends CommandBase {
 
     double leftY = m_joystickSubsystem.driverController.leftStickY();
     double rightY = m_joystickSubsystem.driverController.rightStickY();
-    double leftVolts = (m_botState.DriveDirection == RobotDirection.Forward) ? rightY : leftY;
-    double rightVolts = (m_botState.DriveDirection == RobotDirection.Forward) ? leftY : rightY;
+    double leftPercent = (m_botState.DriveDirection == RobotDirection.Forward) ? rightY : leftY;
+    double rightPercent = (m_botState.DriveDirection == RobotDirection.Forward) ? leftY : rightY;
 
-    m_driveBaseSubsystem.tankDriveVolts(m_drivePowerModifer * leftVolts, 
-                                        m_drivePowerModifer * rightVolts);
+    m_driveBaseSubsystem.tankDrivePercent(m_drivePowerModifer * leftPercent,
+                                          m_drivePowerModifer * rightPercent);
   }
 
   // Called once the command ends or is interrupted.

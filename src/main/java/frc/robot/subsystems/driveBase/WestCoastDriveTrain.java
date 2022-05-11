@@ -72,6 +72,7 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 
 import frc.robot.Constants;
 import frc.robot.utility.Gains;
+import frc.robot.utility.SendableGains;
 
 ///////////////////////////////////////////////////////////////////////////////
 /**
@@ -139,26 +140,16 @@ public class WestCoastDriveTrain extends SubsystemBase {
   /** 
    * Default PID controller gains used for the left side of the drive train
    */
-  private static final Gains kLeftMotorGains = 
-    new Gains( 0.0, // Kp
-               0.0, // Ki
-               0.0, // Kd
-               0.0, // Kf (feed-forward)
-               0,   // Izone
-               0.0  // Peak output
-             );
+  private SendableGains m_leftMotorGains = 
+    new SendableGains();
 
   /** 
    * Default PID controller gains used for the right side of the drive train
    */
-  private static final Gains kRightMotorGains = 
-    new Gains( 0.0, // Kp
-               0.0, // Ki
-               0.0, // Kd
-               0.0, // Kf (feed-forward)
-               0,   // Izone
-               0.0  // Peak output
-             );
+  private SendableGains m_rightMotorGains = 
+    new SendableGains();
+  
+  private static final int kPIDIndex = 0;
 
   //////////////////////////////////////////
   // Kinematics/Odometry
@@ -172,7 +163,10 @@ public class WestCoastDriveTrain extends SubsystemBase {
   /** Gyro sensor referenced for odometry */
   private final Gyro m_gyro = new ADXRS450_Gyro();
 
-
+  // Possible Gear ratios:
+  //  Stock: 10.71:1
+  //          8.45:1
+  //          7.31:1
   //////////////////////////////////
   /// Drive train motors
   //////////////////////////////////
@@ -189,11 +183,14 @@ public class WestCoastDriveTrain extends SubsystemBase {
 
   /** PID controller gains for the left side of the drive train */
   @SuppressWarnings("unused")
-  private Gains m_leftGains = kLeftMotorGains;
+  public SendableGains leftGains = m_leftMotorGains;
 
   /** PID controller gains for the right side of the drive train */
   @SuppressWarnings("unused")
-  private Gains m_rightGains = kRightMotorGains;
+  public SendableGains rightGains = m_rightMotorGains;
+
+  /** PID control errors received from motors */
+  private final double m_motorError[] = new double[2];
 
   /** The robot's drive */
   private final DifferentialDrive m_diffDrive = new DifferentialDrive(m_leftMotors, m_rightMotors);
@@ -223,6 +220,10 @@ public class WestCoastDriveTrain extends SubsystemBase {
   public void periodic() {
     // Update the odometry in the periodic block
     updateOdometry();
+
+    // Update the present motor error values
+    m_motorError[0] = m_leftMaster.getClosedLoopError(kPIDIndex);
+    m_motorError[1] = m_rightMaster.getClosedLoopError(kPIDIndex);
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -317,6 +318,19 @@ public class WestCoastDriveTrain extends SubsystemBase {
   }
 
   /////////////////////////////////////////////////////////////////////////////
+  /**
+   * Controls the left and right sides of the drive directly with percentages.
+   *
+   * @param leftPercent  Percent of full scale drive to apply to the left side
+   * @param rightPercent  Percent of full scale drive to apply to the right side
+   */
+  public void tankDrivePercent(double leftPercent, double rightPercent) {
+    m_leftMotors.set(leftPercent);
+    m_rightMotors.set(rightPercent);
+    m_diffDrive.feed();
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
   /** 
    * Resets drive base encoders to zero on the current position
    */
@@ -373,6 +387,22 @@ public class WestCoastDriveTrain extends SubsystemBase {
   /** Returns the turn rate of the robot in degrees per second */
   public double getTurnRate() {
     return -m_gyro.getRate();
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+  /** 
+   * Returns the closed loop error of the left drive train
+   */
+  public double getLeftMotorError() {
+    return m_motorError[0];
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+  /** 
+   * Returns the closed loop error of the left drive train
+   */
+  public double getRightMotorError() {
+    return m_motorError[1];
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -433,6 +463,8 @@ public class WestCoastDriveTrain extends SubsystemBase {
     m_leftMaster.configFactoryDefault();
     m_rightMaster.configFactoryDefault();
 
+    // TODO: apply closed-loop gains to Falcon motors
+
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. Depending on how your robot's
     // gearbox is constructed, you might have to invert the left side instead.
@@ -456,5 +488,34 @@ public class WestCoastDriveTrain extends SubsystemBase {
     // Configure current ramping (seconds required to ramp from neutral to full output)
     m_leftMaster.configOpenloopRamp(kMotorRampTimeSec);
     m_rightMaster.configOpenloopRamp(kMotorRampTimeSec);
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+  /** Update left motor gains */
+  public void updateLeftMotorGains() { applyMotorGains(m_leftMaster, leftGains, kPIDIndex); }
+
+  /////////////////////////////////////////////////////////////////////////////
+  /** Update left motor gains */
+  public void updateRightMotorGains() { applyMotorGains(m_rightMaster, rightGains, kPIDIndex); }
+
+  /////////////////////////////////////////////////////////////////////////////
+  /** 
+   * Apply a Gains object to a Falcon motor
+   * @param motor  Falcon motor to configure
+   * @param gains  Gains to apply to the motor
+   */
+  private static void applyMotorGains(WPI_TalonFX motor, Gains gains, int pidIndex) {
+    // Timeout value (in milliseconds) used for commands used to configure the
+    // motor. If nonzero, config functions will block while waiting for motor
+    // configuration to succeed, and report an error if configuration times out.
+    // If zero, no blocking or error checking is performed.
+	  final int kConfigTimeoutMs = 30;
+
+    motor.config_kF(pidIndex, gains.kF, kConfigTimeoutMs);
+    motor.config_kP(pidIndex, gains.kP, kConfigTimeoutMs);
+    motor.config_kI(pidIndex, gains.kI, kConfigTimeoutMs);
+    motor.config_kD(pidIndex, gains.kD, kConfigTimeoutMs);
+    motor.config_IntegralZone(pidIndex, gains.iZone, kConfigTimeoutMs);
+    motor.configClosedLoopPeakOutput(pidIndex, gains.peakOutput, kConfigTimeoutMs);
   }
 }

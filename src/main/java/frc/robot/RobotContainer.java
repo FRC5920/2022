@@ -102,6 +102,7 @@ public class RobotContainer {
     // Make the drive base be driven by Joystick commands when not processing
     // another command
     driveBaseSubsystem.setDefaultCommand(new DriveByJoysticks(this));
+    dashboardSubsystem.initialize(this);
   }
 
 }

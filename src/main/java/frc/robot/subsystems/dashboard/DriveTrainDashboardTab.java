@@ -49,60 +49,77 @@
 |                         .OOOOOOOOOOOOOOOOOOOOOOOOOOOOOO                      |
 \-----------------------------------------------------------------------------*/
 
-package frc.robot.subsystems.runtimeState;
-import edu.wpi.first.wpilibj.RobotState;
+package frc.robot.subsystems.dashboard;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.Map;
+import java.util.function.DoubleSupplier;
 
-public class BotStateSubsystem extends SubsystemBase {
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
-  /////////////////////////////////////////////////////////////////////////////
-  /** Directions used when driving the robot */
-  public enum RobotDirection {
-    /** Forward commands drive the robot toward its front (normal) */
-    Forward,
-    
-    /** Forward commands drive the robot toward its rear */
-    Reverse;
+import frc.robot.RobotContainer;
+import frc.robot.subsystems.driveBase.WestCoastDriveTrain;
 
-    /** Get the human-readable name of the direction */
-    @Override
-    public String toString() {
-      return this.name();
-    }
-  };
+/**
+ * A class supplying a Shuffleboard tab for configuring drive train parameters
+ */
+public class DriveTrainDashboardTab implements IDashboardTab {
+  /** The Shuffleboard tab to display in */
+  private ShuffleboardTab m_tab;
+  /** Drive train to operate on */
+  private WestCoastDriveTrain m_driveTrainSubsystem;
 
-  public boolean ManualControl = false;
-  public RobotDirection DriveDirection = RobotDirection.Forward;
-  public boolean isRedAlliance = false;
-  public boolean RobotShooting = false;
-  public boolean StealthMode = false;
-  public boolean currentLimitingIsEnabled = false;
+  /**
+   * Creates an instance of the tab
+   * 
+   * @param driveTrainSubsystem Drive Train subsystem to operate on
+   */
+  DriveTrainDashboardTab(WestCoastDriveTrain driveTrainSubsystem) {
+    m_driveTrainSubsystem = driveTrainSubsystem;
+  }
 
-  /** 
-   * Creates an instance of the object
-  */
-  public BotStateSubsystem() 
-  {}
+  /**
+   * Create and initialize dashboard widgets
+   */
+  @Override
+  public void initialize(RobotContainer botContainer) {
+    m_tab = Shuffleboard.getTab("Drive Train");
 
+    // Set up a gain tuner layout for each side of the drive train
+    ShuffleboardLayout leftTuner = m_tab.getLayout("Left Drivebase", BuiltInLayouts.kList)
+        .withProperties(Map.of("Label position", "TOP"));
+    try {
+      leftTuner.add("Left PID Control", m_driveTrainSubsystem.leftGains);
+      leftTuner.addNumber("Left PID Error", () -> { return m_driveTrainSubsystem.getLeftMotorError(); });
+    } catch (Exception e) {}
+
+    ShuffleboardLayout rightTuner = m_tab.getLayout("Right Drivebase", BuiltInLayouts.kList)
+        .withProperties(Map.of("Label position", "TOP"));
+    try {
+      rightTuner.add("Right PID Control", m_driveTrainSubsystem.rightGains);
+      rightTuner.addNumber("Right PID Error", () -> { return m_driveTrainSubsystem.getRightMotorError(); });
+    } catch (Exception e) {}
+  }
+
+  /**
+   * Service dashboard tab widgets
+   */
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-  }  
+    // Report motor temperatures
+    // SmartDashboard.putNumber("Left Drive Temp",
+    // m_DriveBase.leftMaster.getLeftMotorTemperature());
+    // SmartDashboard.putNumber("Right Drive Temp",
+    // m_DriveBase.rightMaster.getRightMotorTemperature());
 
-  /**
-   * Inverts the present drive direction of the bot
-  */
-  public void invertDriveDirection() {
-    DriveDirection = (RobotDirection.Forward == DriveDirection) ?
-                        RobotDirection.Reverse : RobotDirection.Forward;
+    // Update Drive Base motor gains if drive base gain tuner values have been modified
+    // if (m_gainTunerLeft.process()) {
+    // m_driveTrainSubsystem.updateLeftMotorGains();
+    // }
+    // if (m_gainTunerRight.process()) {
+    // m_driveTrainSubsystem.updateRightMotorGains();
+    // }
   }
-
-  /**
-   * Returns true if the robot is being driven in Manual, tele-operated mode
-   */
-  public boolean robotIsInManualTeleOpMode() {
-    return (RobotState.isEnabled() && RobotState.isTeleop() && ManualControl);
-  }
-
 }

@@ -104,7 +104,7 @@ public class Robot extends TimedRobot {
     // and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-
+    
     // ------------------------------
     // Load PathWeaver Data
     // ------------------------------
@@ -183,8 +183,7 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     // Reset all encoders to 0
     m_robotContainer.driveBaseSubsystem.resetEncoders();
-
-    m_autonomousCommand = m_robotContainer.dashboardSubsystem.getAutonomousCommand();
+    m_robotContainer.dashboardSubsystem.initialize(m_robotContainer);
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -206,13 +205,13 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+
     m_robotContainer.driveBaseSubsystem.setMotorSafetyEnabled(true);
     m_robotContainer.driveBaseSubsystem.setMotorSafetyEnabled(true);
-    m_robotContainer.botState.StealthMode = 
-        ("Stealthy" == m_robotContainer.dashboardSubsystem.m_stealthMode.getSelected());
+    m_robotContainer.dashboardSubsystem.initialize(m_robotContainer);
     
-    boolean currentLimitingEnabled = (m_robotContainer.dashboardSubsystem.m_NoLimits.getSelected() == "LimitsOn");
-    m_robotContainer.driveBaseSubsystem.LimitMotors(currentLimitingEnabled);
+    
+    m_robotContainer.driveBaseSubsystem.LimitMotors(m_robotContainer.botState.currentLimitingIsEnabled);
   }
 
   /** This function is called periodically during operator control. */

@@ -103,8 +103,8 @@ public class Constants {
 	 * _kPeakOutput)
 	 */
 	// public static Gains kGains = new Gains(0.15, 0.0, 1.0, 0.0, 0, 1.0);
-	public static Gains ktRexGains = new Gains(0.025, 0.0, 0.0, 0, 0, 0.1);
-	public static Gains kIntakeGains = new Gains(0.025, 0.0, 0.0, 0, 0, 0.1);
+	public static Gains ktRexGains = new Gains(true, 0.025, 0.0, 0.0, 0, 0, 0.1);
+	public static Gains kIntakeGains = new Gains(true, 0.025, 0.0, 0.0, 0, 0, 0.1);
 
 	// http://www.ni.com/en-us/innovations/white-papers/06/pid-theory-explained.html
 	public static double JoystickSensitivity = .3;
