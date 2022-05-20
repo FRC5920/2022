@@ -51,7 +51,6 @@
 
 package frc.robot.subsystems.driveBase;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
@@ -65,12 +64,10 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 
-
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 
-import frc.robot.Constants;
 import frc.robot.utility.Gains;
 import frc.robot.utility.SendableGains;
 
@@ -82,73 +79,17 @@ import frc.robot.utility.SendableGains;
  * https://github.com/wpilibsuite/allwpilib/tree/main/wpilibjExamples/src/main/java/edu/wpi/first/wpilibj/examples/ramsetecommand
  */
 public class WestCoastDriveTrain extends SubsystemBase {
-  /** The number of motors used in the drive base subsystem */
-  public static final int kNumDriveMotors = 2;
 
-  /** 
-   * Ramp time applied to motor current limiting, defined as the number of seconds to transition
-   * from 0 Amps to full current
-   */
-  public static final double kMotorRampTimeSec = 0.05;
-
-  /////////////////////////////////////
-  // Kinematics/Odometry Constants
-  /////////////////////////////////////
-
-  /** Maximum speed the robot should move at (meters per second) */
-  public static final double kMaxSpeedMetersPerSec = 3.0;
-  /** Maximum angular speed the robot should have (rotations per second) */
-  public static final double kMaxAngularSpeedRotPerSec = 1 * Math.PI; // Half a rotation per second
-
-  // ------ Physical Constants for Odometry (inches) ------
-  /** Width of the west coast drive tracks in inches */
-  private static final double kTrackWidthInches = 27.16535; // Measured 2/27/2022
-  /** Diameter of wheels in the west coast drive train (inches) */
-  private static final double kWheelDiameterInches = 2.004; // Measured 2/27/2022
-  /** Gear ratio applied between drive motors and wheels */
-  public static final double kGearRatio = 8.45; // Defined 2/27/2022
-
-
-  // ------ Physical Constants for Odometry (meters) ------
-  // NOTE:
-  // These constants are automatically calculated from values in inches as a convenience. They are
-  // not expected to be edited directly
-
-  /** Width of the west coast drive tracks in meters */
-  private static final double kTrackWidthMeters = Units.inchesToMeters(kTrackWidthInches);
-  /** Radius of wheels in meters */
-  private static final double kWheelDiameterMeters = Units.inchesToMeters(kWheelDiameterInches);
-  /** Number of wheel encoder ticks per revolution in a Falcon motor */
-  private static final int kFalconTicksPerRevolution = 2048; // Falcon encoder tick count
-  /** Distance (meters) represented by each drive motor encoder tick */
-  private static final double kMetersPerEncoderTick = 
-    (kWheelDiameterMeters * Math.PI) / (double) kFalconTicksPerRevolution * kGearRatio;
-
-
-  //////////////////////////////////////////
-  // Drive base controller gains
-  //////////////////////////////////////////
-
-  // Feed-forward gains used for drive base motors
-  /** Feed-forward static gain (ks) */
-  public static final double kFeedForward_ks = 0.0; 
-  /** Feed-forward velocity gain (kv) */
-  public static final double kFeedForward_kv = 0.0; 
-  /** Feed-forward acceleration gain (kv) */
-  public static final double kFeedForward_ka = 0.0; 
-
-  /** 
+  /**
    * Default PID controller gains used for the left side of the drive train
    */
-  private SendableGains m_leftMotorGains = 
-    new SendableGains();
+  private SendableGains m_leftMotorGains = new SendableGains();
 
-  /** 
+  /**
    * Default PID controller gains used for the right side of the drive train
    */
-  private SendableGains m_rightMotorGains = 
-    new SendableGains();
-  
+  private SendableGains m_rightMotorGains = new SendableGains();
+
   private static final int kPIDIndex = 0;
 
   //////////////////////////////////////////
@@ -156,54 +97,43 @@ public class WestCoastDriveTrain extends SubsystemBase {
   //////////////////////////////////////////
 
   /** Kinematic model for differential drive train */
-  private final DifferentialDriveKinematics m_kinematics = 
-    new DifferentialDriveKinematics(kTrackWidthMeters);
+  private final DifferentialDriveKinematics m_kinematics = new DifferentialDriveKinematics(
+      WCDriveConstants.PhysicalSI.kTrackWidthMeters);
   /** Odometry class for tracking robot pose */
   private final DifferentialDriveOdometry m_odometry;
   /** Gyro sensor referenced for odometry */
   private final Gyro m_gyro = new ADXRS450_Gyro();
 
   // Possible Gear ratios:
-  //  Stock: 10.71:1
-  //          8.45:1
-  //          7.31:1
+  // 8.45:1
   //////////////////////////////////
   /// Drive train motors
   //////////////////////////////////
 
   // The motors on the left side of the drive base.
-  private final WPI_TalonFX m_leftMaster = new WPI_TalonFX(Constants.MotorID.leftDriveMaster);
-  private final MotorControllerGroup m_leftMotors = 
-      new MotorControllerGroup(m_leftMaster);
+  private final WPI_TalonFX m_leftMaster = new WPI_TalonFX(
+      WCDriveConstants.Motors.kLeftMasterCANid);
+  private final MotorControllerGroup m_leftMotors = new MotorControllerGroup(m_leftMaster);
 
   // The motors on the right side of the drive base.
-  private final WPI_TalonFX m_rightMaster = new WPI_TalonFX(Constants.MotorID.rightDriveMaster);
-  private final MotorControllerGroup m_rightMotors = 
-      new MotorControllerGroup(m_rightMaster);
-
-  /** PID controller gains for the left side of the drive train */
-  @SuppressWarnings("unused")
-  public SendableGains leftGains = m_leftMotorGains;
-
-  /** PID controller gains for the right side of the drive train */
-  @SuppressWarnings("unused")
-  public SendableGains rightGains = m_rightMotorGains;
+  private final WPI_TalonFX m_rightMaster = new WPI_TalonFX(
+      WCDriveConstants.Motors.kRightMasterCANid);
+  private final MotorControllerGroup m_rightMotors = new MotorControllerGroup(m_rightMaster);
 
   /** PID control errors received from motors */
   private final double m_motorError[] = new double[2];
 
   /** The robot's drive */
   private final DifferentialDrive m_diffDrive = new DifferentialDrive(m_leftMotors, m_rightMotors);
-  
+
   // Gains are for example purposes only - must be determined for your own robot!
-  private final SimpleMotorFeedforward m_feedforward = 
-      new SimpleMotorFeedforward(kFeedForward_ks, kFeedForward_kv, kFeedForward_ka);
-  
+  private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(
+    WCDriveConstants.Kinematics.ks, WCDriveConstants.Kinematics.kv, WCDriveConstants.Kinematics.ka);
 
   /////////////////////////////////////////////////////////////////////////////
   /** Creates an instance of the subsystem */
   public WestCoastDriveTrain() {
-    ConfigureMotors();  // Configure drive train motors
+    ConfigureMotors(); // Configure drive train motors
 
     // Reset the gyro and encoders
     m_gyro.reset();
@@ -213,9 +143,11 @@ public class WestCoastDriveTrain extends SubsystemBase {
     m_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d());
   }
 
-  
-
   /////////////////////////////////////////////////////////////////////////////
+  /**
+   * This routine is called periodically from the scheduler at a nominal period
+   * of 20 ms
+   */
   @Override
   public void periodic() {
     // Update the odometry in the periodic block
@@ -240,35 +172,36 @@ public class WestCoastDriveTrain extends SubsystemBase {
     m_rightMotors.setVoltage(speeds.rightMetersPerSecond + rightFeedforward);
   }
 
-
   /////////////////////////////////////////////////////////////////////////////
-  /** 
+  /**
    * Returns the current velocity in meters per second of a given motor
-   * @param motor  Motor whose velocity should be returned
+   * 
+   * @param motor Motor whose velocity should be returned
    */
   private static double getMotorVelocity(WPI_TalonFX motor) {
     double ticksPer100ms = motor.getSelectedSensorVelocity();
     double ticksPerSecond = ticksPer100ms * 10;
-    return ticksPerSecond * kMetersPerEncoderTick;
+    return ticksPerSecond * WCDriveConstants.PhysicalSI.kMetersPerEncoderTick;
   }
 
   /////////////////////////////////////////////////////////////////////////////
-  /** 
+  /**
    * Returns the current wheel speeds of the robot
-  */
+   */
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-    return new DifferentialDriveWheelSpeeds( getMotorVelocity(m_leftMaster),
-                                             getMotorVelocity(m_rightMaster) );
+    return new DifferentialDriveWheelSpeeds(getMotorVelocity(m_leftMaster),
+        getMotorVelocity(m_rightMaster));
   }
 
-  
   /////////////////////////////////////////////////////////////////////////////
-  /** 
+  /**
    * Updates the field-relative position using odometry measurements
-  */
+   */
   public void updateOdometry() {
-    double leftDistance = m_leftMaster.getSelectedSensorPosition() * kMetersPerEncoderTick;
-    double rightDistance = m_rightMaster.getSelectedSensorPosition() * kMetersPerEncoderTick;
+    double leftDistance = m_leftMaster.getSelectedSensorPosition()
+        * WCDriveConstants.PhysicalSI.kMetersPerEncoderTick;
+    double rightDistance = m_rightMaster.getSelectedSensorPosition()
+        * WCDriveConstants.PhysicalSI.kMetersPerEncoderTick;
     m_odometry.update(m_gyro.getRotation2d(), leftDistance, rightDistance);
 
     // NOTE: Additional measurements can be applied to the pose estimate
@@ -322,7 +255,7 @@ public class WestCoastDriveTrain extends SubsystemBase {
    * Controls the left and right sides of the drive directly with percentages.
    *
    * @param leftPercent  Percent of full scale drive to apply to the left side
-   * @param rightPercent  Percent of full scale drive to apply to the right side
+   * @param rightPercent Percent of full scale drive to apply to the right side
    */
   public void tankDrivePercent(double leftPercent, double rightPercent) {
     m_leftMotors.set(leftPercent);
@@ -331,7 +264,7 @@ public class WestCoastDriveTrain extends SubsystemBase {
   }
 
   /////////////////////////////////////////////////////////////////////////////
-  /** 
+  /**
    * Resets drive base encoders to zero on the current position
    */
   public void resetEncoders() {
@@ -342,11 +275,13 @@ public class WestCoastDriveTrain extends SubsystemBase {
   /////////////////////////////////////////////////////////////////////////////
   /** Returns the average distance (in meters) indicated by left and right side encoders */
   public double getAverageEncoderDistance() {
-    return (getLeftEncoderTicks() + getRightEncoderTicks()) * kMetersPerEncoderTick / 2.0;
+    return (getLeftEncoderTicks() + getRightEncoderTicks())
+        * WCDriveConstants.PhysicalSI.kMetersPerEncoderTick / 2.0;
   }
 
   /**
    * Returns the raw reading from the left drive encoder.
+   * 
    * @return the left drive encoder
    */
   public double getLeftEncoderTicks() {
@@ -355,6 +290,7 @@ public class WestCoastDriveTrain extends SubsystemBase {
 
   /**
    * Returns the raw reading from the right drive encoder.
+   * 
    * @return the right drive encoder
    */
   public double getRightEncoderTicks() {
@@ -390,7 +326,7 @@ public class WestCoastDriveTrain extends SubsystemBase {
   }
 
   /////////////////////////////////////////////////////////////////////////////
-  /** 
+  /**
    * Returns the closed loop error of the left drive train
    */
   public double getLeftMotorError() {
@@ -398,7 +334,7 @@ public class WestCoastDriveTrain extends SubsystemBase {
   }
 
   /////////////////////////////////////////////////////////////////////////////
-  /** 
+  /**
    * Returns the closed loop error of the left drive train
    */
   public double getRightMotorError() {
@@ -407,11 +343,27 @@ public class WestCoastDriveTrain extends SubsystemBase {
 
   /////////////////////////////////////////////////////////////////////////////
   /**
+   * Returns a reference to Gains used for the left side of the drive train
+   */
+  public SendableGains getLeftGains() {
+    return m_leftMotorGains;
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+  /**
+   * Returns a reference to Gains used for the right side of the drive train
+   */
+  public SendableGains getRightGains() {
+    return m_rightMotorGains;
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+  /**
    * Drives the robot with the given linear velocity and angular velocity.
    *
    * @param xSpeed Linear velocity in m/s.
-   * @param rot Angular velocity in rad/s.
-  */
+   * @param rot    Angular velocity in rad/s.
+   */
   @SuppressWarnings("ParameterName")
   public void drive(double xSpeed, double rot) {
     var wheelSpeeds = m_kinematics.toWheelSpeeds(new ChassisSpeeds(xSpeed, 0.0, rot));
@@ -429,18 +381,18 @@ public class WestCoastDriveTrain extends SubsystemBase {
   };
 
   /////////////////////////////////////////////////////////////////////////////
-  /** 
+  /**
    * Sets drive motor neutral mode to determine behavior when stopping
-  */
+   */
   public void setMotorStopBehavior(MotorStopBehavior behavior) {
     NeutralMode mode = NeutralMode.Brake;
     switch (behavior) {
-      case Brake:
-        break;
+    case Brake:
+      break;
 
-      case Coast:
-        mode = NeutralMode.Coast;
-        break;
+    case Coast:
+      mode = NeutralMode.Coast;
+      break;
     }
 
     m_rightMaster.setNeutralMode(mode);
@@ -450,8 +402,9 @@ public class WestCoastDriveTrain extends SubsystemBase {
   /////////////////////////////////////////////////////////////////////////////
   /**
    * Enable/disable motor safety for drive train motors
-	 * @param enabled true if motor safety is enforced for drive train motors
-  */
+   * 
+   * @param enabled true if motor safety is enforced for drive train motors
+   */
   public void setMotorSafetyEnabled(boolean shouldEnable) {
     m_leftMaster.setSafetyEnabled(shouldEnable);
     m_rightMaster.setSafetyEnabled(shouldEnable);
@@ -474,42 +427,49 @@ public class WestCoastDriveTrain extends SubsystemBase {
   /////////////////////////////////////////////////////////////////////////////
   public void LimitMotors(boolean shouldLimit) {
     // Configure current limiting
-    DriveTrainPowerBudget budget = new DriveTrainPowerBudget(200, kNumDriveMotors, 0.0);
+    DriveTrainPowerBudget budget = new DriveTrainPowerBudget(200,
+        WCDriveConstants.Motors.kNumMotors, 0.0);
 
-    SupplyCurrentLimitConfiguration limitConfig = 
-    new SupplyCurrentLimitConfiguration(shouldLimit, // Enable/disable current limiting
-      budget.motorLimitAmps(),          // Current limit to apply (Amps)
-      budget.motorLimitThresholdAmps(), // Threshold for current limiting
-      budget.kMotorCurrentLimitHoldoffSec);   // Time to wait before applying current limiting
+    SupplyCurrentLimitConfiguration limitConfig = new SupplyCurrentLimitConfiguration(shouldLimit, // Enable/disable
+                                                                                                   // current
+                                                                                                   // limiting
+        budget.motorLimitAmps(), // Current limit to apply (Amps)
+        budget.motorLimitThresholdAmps(), // Threshold for current limiting
+        budget.kMotorCurrentLimitHoldoffSec); // Time to wait before applying current limiting
 
     m_leftMaster.configSupplyCurrentLimit(limitConfig);
     m_rightMaster.configSupplyCurrentLimit(limitConfig);
 
     // Configure current ramping (seconds required to ramp from neutral to full output)
-    m_leftMaster.configOpenloopRamp(kMotorRampTimeSec);
-    m_rightMaster.configOpenloopRamp(kMotorRampTimeSec);
+    m_leftMaster.configOpenloopRamp(WCDriveConstants.Motors.kMotorRampTimeSec);
+    m_rightMaster.configOpenloopRamp(WCDriveConstants.Motors.kMotorRampTimeSec);
   }
 
   /////////////////////////////////////////////////////////////////////////////
   /** Update left motor gains */
-  public void updateLeftMotorGains() { applyMotorGains(m_leftMaster, leftGains, kPIDIndex); }
+  public void updateLeftMotorGains() {
+    applyMotorGains(m_leftMaster, m_leftMotorGains, kPIDIndex);
+  }
 
   /////////////////////////////////////////////////////////////////////////////
   /** Update left motor gains */
-  public void updateRightMotorGains() { applyMotorGains(m_rightMaster, rightGains, kPIDIndex); }
+  public void updateRightMotorGains() {
+    applyMotorGains(m_rightMaster, m_rightMotorGains, kPIDIndex);
+  }
 
   /////////////////////////////////////////////////////////////////////////////
-  /** 
+  /**
    * Apply a Gains object to a Falcon motor
-   * @param motor  Falcon motor to configure
-   * @param gains  Gains to apply to the motor
+   * 
+   * @param motor Falcon motor to configure
+   * @param gains Gains to apply to the motor
    */
   private static void applyMotorGains(WPI_TalonFX motor, Gains gains, int pidIndex) {
     // Timeout value (in milliseconds) used for commands used to configure the
     // motor. If nonzero, config functions will block while waiting for motor
     // configuration to succeed, and report an error if configuration times out.
     // If zero, no blocking or error checking is performed.
-	  final int kConfigTimeoutMs = 30;
+    final int kConfigTimeoutMs = 30;
 
     motor.config_kF(pidIndex, gains.kF, kConfigTimeoutMs);
     motor.config_kP(pidIndex, gains.kP, kConfigTimeoutMs);

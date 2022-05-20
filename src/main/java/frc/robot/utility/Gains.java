@@ -100,4 +100,17 @@ public class Gains extends Object {
     peakOutput = _peakOutput;
   }
 
+  /**
+   * Creates an instance of the object using values copied from another object
+   * @param other  Gains object to copy values from
+   */
+  public Gains(Gains other) {
+    enabled = other.enabled;
+    kP = other.kP;
+    kI = other.kI;
+    kD = other.kD;
+    kF = other.kF;
+    iZone = other.iZone;
+    peakOutput = other.peakOutput;
+  }
 }

@@ -52,7 +52,6 @@
 package frc.robot.subsystems.dashboard;
 
 import java.util.Map;
-import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -91,14 +90,14 @@ public class DriveTrainDashboardTab implements IDashboardTab {
     ShuffleboardLayout leftTuner = m_tab.getLayout("Left Drivebase", BuiltInLayouts.kList)
         .withProperties(Map.of("Label position", "TOP"));
     try {
-      leftTuner.add("Left PID Control", m_driveTrainSubsystem.leftGains);
+      leftTuner.add("Left PID Control", m_driveTrainSubsystem.getLeftGains());
       leftTuner.addNumber("Left PID Error", () -> { return m_driveTrainSubsystem.getLeftMotorError(); });
     } catch (Exception e) {}
 
     ShuffleboardLayout rightTuner = m_tab.getLayout("Right Drivebase", BuiltInLayouts.kList)
         .withProperties(Map.of("Label position", "TOP"));
     try {
-      rightTuner.add("Right PID Control", m_driveTrainSubsystem.rightGains);
+      rightTuner.add("Right PID Control", m_driveTrainSubsystem.getRightGains());
       rightTuner.addNumber("Right PID Error", () -> { return m_driveTrainSubsystem.getRightMotorError(); });
     } catch (Exception e) {}
   }
