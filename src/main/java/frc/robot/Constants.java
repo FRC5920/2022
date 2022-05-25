@@ -50,7 +50,8 @@
 \-----------------------------------------------------------------------------*/
 
 package frc.robot;
-//package edu.wpi.first.wpilibj.examples.ramsetecommand;
+
+import java.util.Map;
 
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import frc.robot.utility.FalconConfig;
@@ -195,14 +196,44 @@ public class Constants {
 	}
 
 	public static final class AutoConstants {
-		public static final double kMaxSpeedMetersPerSecond = 3;
-		public static final double kMaxAccelerationMetersPerSecondSquared = 3;
+    /////////////////////////////////////////////////////////////////////////////
+    /** Autonomous routines */
+    public enum AutoRoutine {
+      /** Drive forward in a straight line for 7 meters */
+      StraightLineForward,
+      /** Drive backward in a straight line 7 meters */
+      StraightLineBackward,
+      /** Drive forward for 7 meters, then turn around and drive back 7 meters */
+      StraightLineBidirectional,
+      /** Follow a path describing a 7 meter by 4 meter rectangle  */
+      Rectangle,
+      /** Follow a path describing a figure of eight */
+      Figure8;
+      
+      /** Get the human-readable name of the auto routine */
+      @Override
+      public String toString() {
+        return this.name();
+      }
 
-		// Reasonable baseline values for a RAMSETE follower in units of meters and
-		// seconds
-		public static final double kRamseteB = 2;
-		public static final double kRamseteZeta = 0.7;
-	}
+      /** 
+       * Converts a human-readable name of an auto routine to its corresponding AutoRoutine
+       * @param name  Autonomous routine name returned by toString()
+       */
+      public static AutoRoutine fromString(String name){
+        return kNameMap.get(name);
+      }
+
+      /** Map used to implement fromString() */
+      private static final Map<String, AutoRoutine> kNameMap = Map.of(
+        StraightLineForward.toString(), StraightLineForward,
+        StraightLineBackward.toString(), StraightLineBackward,
+        StraightLineBidirectional.toString(), StraightLineBidirectional,
+        Rectangle.toString(), Rectangle,
+        Figure8.toString(), Figure8);
+    }
+
+  }
 
 	// This is the multiplier for the speed of the intake motor. Normal speed is 1.0
 	public static final class MotorScaler {

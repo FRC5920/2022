@@ -51,7 +51,10 @@
 
 package frc.robot.subsystems.driveBase;
 
+
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.util.Units;
+
 import frc.robot.utility.PIDGains;
 
 /**
@@ -132,17 +135,48 @@ public class WCDriveConstants {
    */
   public static final class Kinematics {
     /** Feed-forward static gain (ks) */
-    public static final double ks = 0.0;
+    public static final double ksVolts = 0.0;
     /** Feed-forward velocity gain (kv) */
-    public static final double kv = 0.0;
+    public static final double kvVoltSecondsPerMeter = 0.0;
     /** Feed-forward acceleration gain (kv) */
-    public static final double ka = 0.0;
+    public static final double kaVoltSecondsSquaredPerMeter = 0.0;
 
     /** Maximum speed the robot should move at (meters per second) */
     public static final double kMaxSpeedMetersPerSec = 3.0;
     /** Maximum angular speed the robot should have (rotations per second) */
-    public static final double kMaxAngularSpeedRotPerSec = 1 * Math.PI; // Half a rotation per
-                                                                        // second
+    public static final double kMaxAngularSpeedRotPerSec = 1 * Math.PI; // 0.5 rotation per second
+
+    /** Kinematic model for the drive train */
+    public static final DifferentialDriveKinematics kDriveKinematics =
+        new DifferentialDriveKinematics(PhysicalSI.kTrackWidthMeters);
+  }
+
+  /** 
+   * Constants for use in trajectory-based autonomous routines.  See WPILib documentation for these
+   * constants presented here:
+   *    https://docs.wpilib.org/en/stable/docs/software/pathplanning/trajectory-tutorial/entering-constants.html#max-trajectory-velocity-acceleration
+   */
+  public static final class Autonomous {
+    /** Maximum speed (meters/second).  Set this slightly below nominal free speed of the bot */
+    public static final double kMaxSpeedMetersPerSecond = 3.0;
+    /** 
+     * Maximum acceleration (meters/second^2).  The value of this constant becomes less critical
+     * when a DifferentialDriveVoltageConstraint is applied in the auto routine.
+     */
+    public static final double kMaxAccelerationMetersPerSecondSquared = 1.0;
+
+    /** Reasonable baseline value in units of meters and seconds for a RAMSETE follower 'b' gain.
+     * Larger values of b make convergence more aggressive like a proportional term.  For info
+     * on tuning B gain, see:
+     *    https://docs.wpilib.org/en/stable/docs/software/advanced-controls/trajectories/ramsete.html#constructing-the-ramsete-controller-object
+     */
+    public static final double kRamseteB = 2;
+    /** Reasonable baseline value in units of meters and seconds for a RAMSETE 'zeta' gain.
+     * Larger values of zeta provide more damping in the response.  For info on tuning zeta gain,
+     * see:
+     *    https://docs.wpilib.org/en/stable/docs/software/advanced-controls/trajectories/ramsete.html#constructing-the-ramsete-controller-object
+     */
+    public static final double kRamseteZeta = 0.7;
   }
 
   /**

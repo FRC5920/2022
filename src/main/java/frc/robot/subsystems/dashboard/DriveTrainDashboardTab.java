@@ -90,15 +90,15 @@ public class DriveTrainDashboardTab implements IDashboardTab {
     ShuffleboardLayout leftTuner = m_tab.getLayout("Left Drivebase", BuiltInLayouts.kList)
         .withProperties(Map.of("Label position", "TOP"));
     try {
-      leftTuner.add("Left PID Control", m_driveTrainSubsystem.getLeftSendableGains());
-      leftTuner.addNumber("Left PID Error", () -> { return m_driveTrainSubsystem.getLeftMotorError(); });
+      leftTuner.add("Left PID Control", m_driveTrainSubsystem.getSendableGains()[0]);
+      leftTuner.addNumber("Left PID Error", () -> { return m_driveTrainSubsystem.getVelocitySensorErrorPerSec()[0]; });
     } catch (Exception e) {}
 
     ShuffleboardLayout rightTuner = m_tab.getLayout("Right Drivebase", BuiltInLayouts.kList)
         .withProperties(Map.of("Label position", "TOP"));
     try {
-      rightTuner.add("Right PID Control", m_driveTrainSubsystem.getRightSendableGains());
-      rightTuner.addNumber("Right PID Error", () -> { return m_driveTrainSubsystem.getRightMotorError(); });
+      rightTuner.add("Right PID Control", m_driveTrainSubsystem.getSendableGains()[1]);
+      rightTuner.addNumber("Right PID Error", () -> { return m_driveTrainSubsystem.getVelocitySensorErrorPerSec()[1]; });
     } catch (Exception e) {}
   }
 
