@@ -52,30 +52,29 @@
 package frc.robot.subsystems.driveBase;
 
 import edu.wpi.first.math.util.Units;
-import frc.robot.utility.Gains;
+import frc.robot.utility.PIDGains;
 
-
-/** 
+/**
  * Constants used in conjunction with the WestCoastDrivetrain class
-*/
+ */
 public class WCDriveConstants {
 
-  /** 
+  /**
    * Constants for motors used in the drive train
    */
   public static final class Motors {
     /** CAN ID of the left master motor */
-    public static final int kLeftMasterCANid = 1;  // Falcon 500
+    public static final int kLeftMasterCANid = 1; // Falcon 500
     /** CAN ID of the right master motor */
-    public static final int kRightMasterCANid = 2;  // Falcon 500
+    public static final int kRightMasterCANid = 2; // Falcon 500
 
     /** The number of motors used in the drive base subsystem */
     public static final int kNumMotors = 2;
 
     /**
-     * Ramp time applied by motor controllers, given as the number of seconds to
-     * transition from 0 Amps to full current.  Greater values can help to limit
-     * motor current draw, but may result in less responsive control.
+     * Ramp time applied by motor controllers, given as the number of seconds to transition from 0
+     * Amps to full current. Greater values can help to limit motor current draw, but may result in
+     * less responsive control.
      */
     public static final double kMotorRampTimeSec = 0.01;
   }
@@ -84,12 +83,10 @@ public class WCDriveConstants {
    * Physical constants describing the drive train (Imperial units)
    * 
    **************************************************************************
-   * NOTE:
-   *   Constants provided in this class are for poor souls still measuring in
-   *   IMPERIAL UNITS (fingers in mouth with gagging noises...).  Physical
-   *   dimensions of drive base components entered here are automatically
-   *   converted to equivalent SI unit values in constants below.
-   **************************************************************************   
+   * NOTE: Constants provided in this class are for poor souls still measuring in IMPERIAL UNITS
+   * (fingers in mouth with gagging noises...). Physical dimensions of drive base components entered
+   * here are automatically converted to equivalent SI unit values in constants below.
+   ************************************************************************** 
    */
   private static final class PhysicalImp {
     /** Width of the west coast drive tracks in inches */
@@ -102,36 +99,35 @@ public class WCDriveConstants {
     public static final double kGearRatio = 8.45; // (8.45:1 gear ratio - Defined 2/27/2022)
   }
 
-
-
   /**
    * Physical constants describing the drive train (Imperial units)
    * 
-   * These constants are automatically calculated from values given in the
-   * PhysicalImp class above.  They are not expected to be edited directly.
+   * These constants are automatically calculated from values given in the PhysicalImp class above.
+   * They are not expected to be edited directly.
    */
   public static final class PhysicalSI {
     /** Width of the west coast drive tracks in meters */
-    public static final double kTrackWidthMeters = Units.inchesToMeters(PhysicalImp.kTrackWidthInches);
+    public static final double kTrackWidthMeters = Units
+        .inchesToMeters(PhysicalImp.kTrackWidthInches);
     /** Radius of wheels in meters */
-    public static final double kWheelDiameterMeters = Units.inchesToMeters(PhysicalImp.kWheelDiameterInches);
+    public static final double kWheelDiameterMeters = Units
+        .inchesToMeters(PhysicalImp.kWheelDiameterInches);
     /** Gear ratio applied between drive motors and wheels */
     public static final double kGearRatio = PhysicalImp.kGearRatio;
 
     /** Number of wheel encoder ticks per revolution in a Falcon motor */
     public static final int kFalconTicksPerRevolution = 2048; // Falcon encoder tick count
     /** Distance (meters) represented by each drive motor encoder tick */
-    public static final double kMetersPerEncoderTick = 
-      (kWheelDiameterMeters * Math.PI) / (double) kFalconTicksPerRevolution * kGearRatio;
+    public static final double kMetersPerEncoderTick = (kWheelDiameterMeters * Math.PI)
+        / (double) kFalconTicksPerRevolution * kGearRatio;
 
   }
-
 
   /**
    * Constants used in conjunction with the drive base kinematic model.
    * 
-   * These constants must be empirically determined using the sysid utility and
-   * by following instructions provided at:
+   * These constants must be empirically determined using the sysid utility and by following
+   * instructions provided at:
    * https://docs.wpilib.org/en/stable/docs/software/pathplanning/trajectory-tutorial/characterizing-drive.html
    */
   public static final class Kinematics {
@@ -145,33 +141,29 @@ public class WCDriveConstants {
     /** Maximum speed the robot should move at (meters per second) */
     public static final double kMaxSpeedMetersPerSec = 3.0;
     /** Maximum angular speed the robot should have (rotations per second) */
-    public static final double kMaxAngularSpeedRotPerSec = 1 * Math.PI; // Half a rotation per second
+    public static final double kMaxAngularSpeedRotPerSec = 1 * Math.PI; // Half a rotation per
+                                                                        // second
   }
-
 
   /**
    * Initial PID Controller Gains for left side of drive train
    */
-  public static final Gains kLeftGains = new Gains(
-      false,    // true to enable PID control
-      1.0,      // Proportional gain (kP)
-      0.0,      // Integral gain (kI)
-      0.0,      // Derivative gain (kD)
-      0.0,      // Feed-forward gain (kF)
-      0,        // Integral zone (i.e. integral deadband)
-      999.0     // Maximum controller output
-    );
+  public static final PIDGains kDefaultLeftGains = new PIDGains(
+      false, // true to enable PID control
+      1.0, // Proportional gain (kP)
+      0.0, // Integral gain (kI)
+      0.0, // Derivative gain (kD)
+      0.0 // Feed-forward gain (kF)
+  );
 
   /**
    * Initial PID Controller Gains for right side of drive train
    */
-  public static final Gains kRightGains = new Gains(
-      false,    // true to enable PID control
-      1.0,      // Proportional gain (kP)
-      0.0,      // Integral gain (kI)
-      0.0,      // Derivative gain (kD)
-      0.0,      // Feed-forward gain (kF)
-      0,        // Integral zone (i.e. integral deadband)
-      999.0     // Maximum controller output
-    );
+  public static final PIDGains kDefaultRightGains = new PIDGains(
+      false, // true to enable PID control
+      1.0, // Proportional gain (kP)
+      0.0, // Integral gain (kI)
+      0.0, // Derivative gain (kD)
+      0.0 // Feed-forward gain (kF)s
+  );
 }

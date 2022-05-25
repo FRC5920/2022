@@ -82,7 +82,7 @@ public class DriveByJoysticks extends CommandBase {
     m_joystickSubsystem = botContainer.joystickSubsystem;
 
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_botState, m_driveBaseSubsystem, m_joystickSubsystem);
+    addRequirements(m_driveBaseSubsystem, m_joystickSubsystem);
   }
 
   // Called when the command is initially scheduled.

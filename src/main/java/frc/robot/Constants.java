@@ -53,7 +53,8 @@ package frc.robot;
 //package edu.wpi.first.wpilibj.examples.ramsetecommand;
 
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
-import frc.robot.utility.Gains;
+import frc.robot.utility.FalconConfig;
+import frc.robot.utility.PIDGains;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -103,8 +104,9 @@ public class Constants {
 	 * _kPeakOutput)
 	 */
 	// public static Gains kGains = new Gains(0.15, 0.0, 1.0, 0.0, 0, 1.0);
-	public static Gains ktRexGains = new Gains(true, 0.025, 0.0, 0.0, 0, 0, 0.1);
-	public static Gains kIntakeGains = new Gains(true, 0.025, 0.0, 0.0, 0, 0, 0.1);
+  public static PIDGains kDefaultGains = new PIDGains(true, 0.025, 0.0, 0.0, 0);
+	public static FalconConfig ktRexGains = new FalconConfig( kDefaultGains, 0, 0.1);
+	public static FalconConfig kIntakeGains = new FalconConfig(kDefaultGains, 0, 0.1);
 
 	// http://www.ni.com/en-us/innovations/white-papers/06/pid-theory-explained.html
 	public static double JoystickSensitivity = .3;

@@ -7,65 +7,46 @@ package frc.robot.utility;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 
-
 /** Add your docs here. */
-public class SendableGains extends Gains implements Sendable {
-  /** Flag that is true if gains have been modified via dashboard widgets */
+public class SendableGains implements Sendable {
+  /** true after gains have been modified; false after setUnmodified() is called */
   private boolean m_gainsModified;
+  /** PIDGains to operate on */
+  private PIDGains m_gains;
 
   /**
-   * Constructs an object using initial values given in a Gains object
+   * Constructs a SendableGains that operates on a given PIDGains object
    * 
-   * @param val Initial values to assign to the object
+   * @param gains PIDGains to operate on
    */
-  public SendableGains() {
-    super();
+  public SendableGains(PIDGains gains) {
     m_gainsModified = false;
-  }
-
-  /**
-   * Constructs an object using initial values given in a Gains object
-   * 
-   * @param val Initial values to assign to the object
-   */
-  public SendableGains(Gains gains) {
-    super(gains);
-    m_gainsModified = false;
+    m_gains = gains;
   }
 
   /** Returns true if the gains are enabled */
   public boolean getEnabled() {
-    return enabled;
+    return m_gains.enabled();
   }
 
   /** Returns the proportional gain */
   public double getkP() {
-    return kP;
+    return m_gains.kP();
   }
 
   /** Returns the integral gain */
   public double getkI() {
-    return kI;
+    return m_gains.kI();
   }
 
   /** Returns the derivative gain */
   public double getkD() {
-    return kD;
+    return m_gains.kD();
   }
 
   /** Returns the feed-forward gain */
   public double getkF() {
-    return kF;
-  }
-
-  /** Returns the integral zone/deadband */
-  public int getiZone() {
-    return iZone;
-  }
-
-  /** Returns the maximum allowed controller output */
-  public double getPeakOutput() {
-    return peakOutput;
+    return m_gains.kF();
   }
 
   /**
@@ -73,7 +54,7 @@ public class SendableGains extends Gains implements Sendable {
    * @param value  true to enable PID control; else false to disable PID control
    */
   public void setEnabled(boolean value) {
-    enabled = value;
+    m_gains.enabled(value);
     m_gainsModified = true;
   }
 
@@ -82,7 +63,7 @@ public class SendableGains extends Gains implements Sendable {
    * @param value  Gain value to assign
    */
   public void setkP(double value) {
-    kP = value;
+    m_gains.kP(value);
     m_gainsModified = true;
   }
 
@@ -91,7 +72,7 @@ public class SendableGains extends Gains implements Sendable {
    * @param value  Gain value to assign
    */
   public void setkI(double value) {
-    kI = value;
+    m_gains.kI(value);
     m_gainsModified = true;
   }
 
@@ -100,7 +81,7 @@ public class SendableGains extends Gains implements Sendable {
    * @param value  Gain value to assign
    */
   public void setkD(double value) {
-    kD = value;
+    m_gains.kD(value);
     m_gainsModified = true;
   }
 
@@ -109,25 +90,7 @@ public class SendableGains extends Gains implements Sendable {
    * @param value  Gain value to assign
    */
   public void setkF(double value) {
-    kF = value;
-    m_gainsModified = true;
-  }
-
-  /**
-   * Sets the integral zone and marks the Gains object as modified
-   * @param value  Gain value to assign
-   */
-  public void setiZone(int value) {
-    iZone = value;
-    m_gainsModified = true;
-  }
-
-  /**
-   * Sets the maximum control output and marks the Gains object as modified
-   * @param value  Gain value to assign
-   */
-  public void setPeakOutput(double value) {
-    peakOutput = value;
+    m_gains.kF(value);
     m_gainsModified = true;
   }
 
@@ -144,21 +107,6 @@ public class SendableGains extends Gains implements Sendable {
   }
 
   /**
-   * Internal method that returns the integral zone value as a double
-   */
-  private double getiZoneAsDouble() {
-    return (double) iZone;
-  }
-
-  /** 
-   * Internal method that sets the integral zone value from a double
-   */
-  private void setiZoneAsDouble(double value) {
-    iZone = (int) value;
-    m_gainsModified = true;
-  }
-
-  /**
    * Initializes the object as a Sendable
    * 
    * @param builder sendable builder
@@ -169,8 +117,6 @@ public class SendableGains extends Gains implements Sendable {
     builder.addDoubleProperty("i", this::getkI, this::setkI);
     builder.addDoubleProperty("d", this::getkD, this::setkD);
     builder.addDoubleProperty("f", this::getkF, this::setkF);
-    builder.addDoubleProperty("iZone", this::getiZoneAsDouble, this::setiZoneAsDouble);
-    builder.addDoubleProperty("maxOut", this::getPeakOutput, this::setPeakOutput);
   }
 
 }

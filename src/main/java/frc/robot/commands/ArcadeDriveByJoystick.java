@@ -49,76 +49,86 @@
 |                         .OOOOOOOOOOOOOOOOOOOOOOOOOOOOOO                      |
 \-----------------------------------------------------------------------------*/
 
-package frc.robot.subsystems.dashboard;
+package frc.robot.commands;
 
-import java.util.Map;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-
+import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.driveBase.WestCoastDriveTrain;
+import frc.robot.subsystems.joystick.JoystickSubsystem;
+import frc.robot.subsystems.runtimeState.BotStateSubsystem;
+import frc.robot.subsystems.runtimeState.BotStateSubsystem.RobotDirection;;
 
-/**
- * A class supplying a Shuffleboard tab for configuring drive train parameters
- */
-public class DriveTrainDashboardTab implements IDashboardTab {
-  /** The Shuffleboard tab to display in */
-  private ShuffleboardTab m_tab;
-  /** Drive train to operate on */
-  private WestCoastDriveTrain m_driveTrainSubsystem;
+public class ArcadeDriveByJoystick extends CommandBase {
+  private BotStateSubsystem m_botState;
+  private JoystickSubsystem m_joystickSubsystem;
+  private WestCoastDriveTrain m_driveBaseSubsystem;
+  private double m_drivePowerModifer = 1;
 
+  /////////////////////////////////////////////////////////////////////////////
   /**
-   * Creates an instance of the tab
+   * Creates an instance of the command
    * 
-   * @param driveTrainSubsystem Drive Train subsystem to operate on
+   * @param muzzleVelocity Speed to fire the ball
+   * @param botContainer       Object providing access to robot subsystems
+   * @param fireButton     Joystick button used to fire in manual tele-operated
+   *                       mode
    */
-  DriveTrainDashboardTab(WestCoastDriveTrain driveTrainSubsystem) {
-    m_driveTrainSubsystem = driveTrainSubsystem;
+  public ArcadeDriveByJoystick(RobotContainer botContainer) {
+    m_botState = botContainer.botState;
+    m_driveBaseSubsystem = botContainer.driveBaseSubsystem;
+    m_joystickSubsystem = botContainer.joystickSubsystem;
+
+    // Use addRequirements() here to declare subsystem dependencies.
+    addRequirements(m_driveBaseSubsystem, m_joystickSubsystem);
   }
 
-  /**
-   * Create and initialize dashboard widgets
-   */
+  // Called when the command is initially scheduled.
   @Override
-  public void initialize(RobotContainer botContainer) {
-    m_tab = Shuffleboard.getTab("Drive Train");
-
-    // Set up a gain tuner layout for each side of the drive train
-    ShuffleboardLayout leftTuner = m_tab.getLayout("Left Drivebase", BuiltInLayouts.kList)
-        .withProperties(Map.of("Label position", "TOP"));
-    try {
-      leftTuner.add("Left PID Control", m_driveTrainSubsystem.getLeftSendableGains());
-      leftTuner.addNumber("Left PID Error", () -> { return m_driveTrainSubsystem.getLeftMotorError(); });
-    } catch (Exception e) {}
-
-    ShuffleboardLayout rightTuner = m_tab.getLayout("Right Drivebase", BuiltInLayouts.kList)
-        .withProperties(Map.of("Label position", "TOP"));
-    try {
-      rightTuner.add("Right PID Control", m_driveTrainSubsystem.getRightSendableGains());
-      rightTuner.addNumber("Right PID Error", () -> { return m_driveTrainSubsystem.getRightMotorError(); });
-    } catch (Exception e) {}
+  public void initialize() {
   }
 
-  /**
-   * Service dashboard tab widgets
-   */
+  // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void periodic() {
-    // Report motor temperatures
-    // SmartDashboard.putNumber("Left Drive Temp",
-    // m_DriveBase.leftMaster.getLeftMotorTemperature());
-    // SmartDashboard.putNumber("Right Drive Temp",
-    // m_DriveBase.rightMaster.getRightMotorTemperature());
+  public void execute() {
+    // TODO: move dashboard code in DriveByJoystick into the DashboardSubsystem
+    if (m_joystickSubsystem.driverController.bumpRight.get()) {
+      m_drivePowerModifer = Constants.MotorScaler.DriveMidLimit;
+      SmartDashboard.putString("Speed", "Medium");
+    } else {
+      if (m_joystickSubsystem.driverController.bumpLeft.get()) {
+        m_drivePowerModifer = Constants.MotorScaler.DriveSlowLimit;
+        SmartDashboard.putString("Speed", "Slow");
+      } else {
+        m_drivePowerModifer = Constants.MotorScaler.DriveStandardLimit;
+        SmartDashboard.putString("Speed", "Normal");
+      }
+    }
 
-    // Update Drive Base motor gains if drive base gain tuner values have been modified
-    // if (m_gainTunerLeft.process()) {
-    // m_driveTrainSubsystem.updateLeftMotorGains();
-    // }
-    // if (m_gainTunerRight.process()) {
-    // m_driveTrainSubsystem.updateRightMotorGains();
-    // }
+    // Joystick drives the robot in arcade mode:
+    //    Left stick Y-axis (up/down) controls speed (1.0 is full forward; -1.0 is full backward)
+    //    Left stick X-axis (left/right) controls rate of rotation
+
+    // Invert the joystick according to the present robot direction 
+    double inverter = (m_botState.DriveDirection == RobotDirection.Forward) ? 1.0 : -1.0;
+    double speed = -1.0 * m_joystickSubsystem.driverController.leftStickY() * inverter;
+    double rotationRate = m_joystickSubsystem.driverController.leftStickX() * inverter;
+
+    m_driveBaseSubsystem.arcadeDrive(m_drivePowerModifer * speed, 
+                                     rotationRate, false);
+  }
+
+  // Called once the command ends or is interrupted.
+  @Override
+  public void end(boolean interrupted) {
+    m_driveBaseSubsystem.tankDriveVolts(0, 0);
+  }
+
+  // Returns true when the command should end.
+  @Override
+  public boolean isFinished() {
+    return false;
   }
 }

@@ -51,66 +51,136 @@
 
 package frc.robot.utility;
 
-
 /**
  * A class that wraps PID gains and parameters for a CTRE Falcon motor
  */
-public class Gains extends Object {
+public class PIDGains extends Object {
   /** true if PID control is enabled; else false if it is disabled */
-  public boolean enabled;
+  public boolean m_enabled;
   /** Proportional gain */
-  public double kP;
+  public double m_kP;
   /** Integral gain */
-  public double kI;
+  public double m_kI;
   /** Derivative gain */
-  public double kD;
+  public double m_kD;
   /** Feed-forward gain */
-  public double kF;
-  /** Integral zone (i.e. integral deadband) */
-  public int iZone;
-  /** Maximum Peak output */
-  public double peakOutput;
+  public double m_kF;
 
-  /** Creates an uninitialized Gains object */
-  public Gains() {
-    enabled = false;
-    kP = kI = kD = kF = peakOutput = 0.0;
-    iZone = 0;
+  /** Creates uninitialized default Gains */
+  public PIDGains() {
+    m_enabled = false;
+    m_kP = m_kI = m_kD = m_kF = 0.0;
   }
 
   /**
    * Creates an instance of the object with given parameter values
    * 
-   * @param _enabled    True if the controller is enabled; else false to disable it
-   * @param _kP         Proportional gain
-   * @param _kI         Integral gain
-   * @param _kD         Derivative gain
-   * @param _kF         Feed-forward gain
-   * @param _izone      Integral zone (i.e. integral deadband)
-   * @param _peakOutput Maximum peak output
+   * @param enabled True if the controller is enabled; else false to disable it
+   * @param kP      Proportional gain
+   * @param kI      Integral gain
+   * @param kD      Derivative gain
+   * @param kF      Feed-forward gain
    */
-  public Gains(boolean _enabled, double _kP, double _kI, double _kD, double _kF, int _iZone,
-      double _peakOutput) {
-    enabled = _enabled;
-    kP = _kP;
-    kI = _kI;
-    kD = _kD;
-    kF = _kF;
-    iZone = _iZone;
-    peakOutput = _peakOutput;
+  public PIDGains(boolean enabled, double kP, double kI, double kD, double kF) {
+    m_enabled = enabled;
+    m_kP = kP;
+    m_kI = kI;
+    m_kD = kD;
+    m_kF = kF;
+  }
+
+  /** 
+   * Copy values from another PIDGains object
+   * @param other  Gains to copy
+   */
+  public void copy(PIDGains other) {
+    m_enabled = other.m_enabled;
+    m_kP = other.m_kP;
+    m_kI = other.m_kI;
+    m_kD = other.m_kD;
+    m_kF = other.m_kF;
   }
 
   /**
    * Creates an instance of the object using values copied from another object
-   * @param other  Gains object to copy values from
+   * 
+   * @param other Gains object to copy values from
    */
-  public Gains(Gains other) {
-    enabled = other.enabled;
-    kP = other.kP;
-    kI = other.kI;
-    kD = other.kD;
-    kF = other.kF;
-    iZone = other.iZone;
-    peakOutput = other.peakOutput;
+  public PIDGains(PIDGains other) {
+    m_enabled = other.m_enabled;
+    m_kP = other.m_kP;
+    m_kI = other.m_kI;
+    m_kD = other.m_kD;
+    m_kF = other.m_kF;
+  }
+
+  /**
+   * Enables/disables PID control
+   * 
+   * @param enabled true if PID control is enabled; else false for disabled
+   */
+  public void enabled(boolean enabled) {
+    m_enabled = enabled;
+  }
+
+  /** @return true if PID control is enabled; else false */
+  public boolean enabled() {
+    return m_enabled;
+  }
+
+  /**
+   * Sets proportional gain (kP)
+   * 
+   * @param gain Gain value to apply
+   */
+  public void kP(double gain) {
+    m_kP = gain;
+  }
+
+  /** @return the proportional gain (kP) */
+  public double kP() {
+    return m_kP;
+  }
+
+  /**
+   * Sets integral gain (kI)
+   * 
+   * @param gain Gain value to apply
+   */
+  public void kI(double gain) {
+    m_kI = gain;
+  }
+
+  /** @return the integral gain (kI) */
+  public double kI() {
+    return m_kI;
+  }
+
+  /**
+   * Sets derivative gain (kD)
+   * 
+   * @param gain Gain value to apply
+   */
+  public void kD(double gain) {
+    m_kD = gain;
+  }
+
+  /** @return the derivative gain (kD) */
+  public double kD() {
+    return m_kD;
+  }
+
+  /**
+   * Sets feed-forward gain (kF)
+   * 
+   * @param gain Gain value to apply
+   */
+  public void kF(double gain) {
+    m_kF = gain;
+  }
+
+  /** @return the feed-forward gain (kF) */
+  public double kF() {
+    return m_kF;
   }
 }

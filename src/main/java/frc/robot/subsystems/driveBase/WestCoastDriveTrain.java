@@ -68,7 +68,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 
-import frc.robot.utility.Gains;
+import frc.robot.utility.PIDGains;
 import frc.robot.utility.SendableGains;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -83,13 +83,14 @@ public class WestCoastDriveTrain extends SubsystemBase {
   /**
    * Default PID controller gains used for the left side of the drive train
    */
-  private SendableGains m_leftMotorGains = new SendableGains();
+  private PIDGains m_leftMotorGains = new PIDGains(WCDriveConstants.kDefaultLeftGains);
+  private SendableGains m_leftSendableGains = new SendableGains(m_leftMotorGains);
 
   /**
    * Default PID controller gains used for the right side of the drive train
    */
-  private SendableGains m_rightMotorGains = new SendableGains();
-
+  private PIDGains m_rightMotorGains = new PIDGains(WCDriveConstants.kDefaultRightGains);
+  private SendableGains m_rightSendableGains = new SendableGains(m_rightMotorGains);
   private static final int kPIDIndex = 0;
 
   //////////////////////////////////////////
@@ -104,8 +105,6 @@ public class WestCoastDriveTrain extends SubsystemBase {
   /** Gyro sensor referenced for odometry */
   private final Gyro m_gyro = new ADXRS450_Gyro();
 
-  // Possible Gear ratios:
-  // 8.45:1
   //////////////////////////////////
   /// Drive train motors
   //////////////////////////////////
@@ -230,11 +229,13 @@ public class WestCoastDriveTrain extends SubsystemBase {
   /**
    * Drives the robot using arcade controls.
    *
-   * @param fwd Forward movement being commanded
-   * @param rot Rotation being commanded
+   * @param xSpeed The robot's speed along the X axis [-1.0..1.0]. Forward is positive.
+   * @param zRotation The robot's rotation rate around the Z axis [-1.0..1.0]. Clockwise is
+   *     positive.
+   * @param squareInputs If set, decreases the input sensitivity at low speeds.
    */
-  public void arcadeDrive(double fwd, double rot) {
-    m_diffDrive.arcadeDrive(fwd, rot);
+  public void arcadeDrive(double xSpeed, double zRotationRate, boolean useLowSensitivity) {
+    m_diffDrive.arcadeDrive(xSpeed, zRotationRate, useLowSensitivity);
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -345,16 +346,16 @@ public class WestCoastDriveTrain extends SubsystemBase {
   /**
    * Returns a reference to Gains used for the left side of the drive train
    */
-  public SendableGains getLeftGains() {
-    return m_leftMotorGains;
+  public SendableGains getLeftSendableGains() {
+    return m_leftSendableGains;
   }
 
   /////////////////////////////////////////////////////////////////////////////
   /**
    * Returns a reference to Gains used for the right side of the drive train
    */
-  public SendableGains getRightGains() {
-    return m_rightMotorGains;
+  public SendableGains getRightSendableGains() {
+    return m_rightSendableGains;
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -464,18 +465,16 @@ public class WestCoastDriveTrain extends SubsystemBase {
    * @param motor Falcon motor to configure
    * @param gains Gains to apply to the motor
    */
-  private static void applyMotorGains(WPI_TalonFX motor, Gains gains, int pidIndex) {
+  private static void applyMotorGains(WPI_TalonFX motor, PIDGains gains, int pidIndex) {
     // Timeout value (in milliseconds) used for commands used to configure the
     // motor. If nonzero, config functions will block while waiting for motor
     // configuration to succeed, and report an error if configuration times out.
     // If zero, no blocking or error checking is performed.
     final int kConfigTimeoutMs = 30;
 
-    motor.config_kF(pidIndex, gains.kF, kConfigTimeoutMs);
-    motor.config_kP(pidIndex, gains.kP, kConfigTimeoutMs);
-    motor.config_kI(pidIndex, gains.kI, kConfigTimeoutMs);
-    motor.config_kD(pidIndex, gains.kD, kConfigTimeoutMs);
-    motor.config_IntegralZone(pidIndex, gains.iZone, kConfigTimeoutMs);
-    motor.configClosedLoopPeakOutput(pidIndex, gains.peakOutput, kConfigTimeoutMs);
+    motor.config_kF(pidIndex, gains.kF(), kConfigTimeoutMs);
+    motor.config_kP(pidIndex, gains.kP(), kConfigTimeoutMs);
+    motor.config_kI(pidIndex, gains.kI(), kConfigTimeoutMs);
+    motor.config_kD(pidIndex, gains.kD(), kConfigTimeoutMs);
   }
 }
