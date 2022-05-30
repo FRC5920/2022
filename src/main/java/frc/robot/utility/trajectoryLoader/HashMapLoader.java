@@ -87,8 +87,9 @@ public class HashMapLoader implements LoadObserver {
    * Trajectory object
    * 
    * @param filePath Path of the file that could not be loaded
+   * @param cause  Description of what caused the failure
    */
-  public void onLoadFailed(Path filePath) {
+  public void onLoadFailed(Path filePath, String cause) {
     failedFiles.add(filePath.toString());
   }
 }

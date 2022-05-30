@@ -53,6 +53,10 @@ package frc.robot.subsystems.driveBase;
 
 
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+
 import edu.wpi.first.math.util.Units;
 
 import frc.robot.utility.PIDGains;
@@ -165,18 +169,23 @@ public class WCDriveConstants {
      */
     public static final double kMaxAccelerationMetersPerSecondSquared = 1.0;
 
-    /** Reasonable baseline value in units of meters and seconds for a RAMSETE follower 'b' gain.
-     * Larger values of b make convergence more aggressive like a proportional term.  For info
-     * on tuning B gain, see:
-     *    https://docs.wpilib.org/en/stable/docs/software/advanced-controls/trajectories/ramsete.html#constructing-the-ramsete-controller-object
-     */
-    public static final double kRamseteB = 2;
-    /** Reasonable baseline value in units of meters and seconds for a RAMSETE 'zeta' gain.
-     * Larger values of zeta provide more damping in the response.  For info on tuning zeta gain,
-     * see:
-     *    https://docs.wpilib.org/en/stable/docs/software/advanced-controls/trajectories/ramsete.html#constructing-the-ramsete-controller-object
-     */
-    public static final double kRamseteZeta = 0.7;
+    /** Voltage constraint applied to autonomous routines to limit acceleration */
+    public static final DifferentialDriveVoltageConstraint kAutoVoltageConstraint =
+      new DifferentialDriveVoltageConstraint(
+                new SimpleMotorFeedforward(
+                      Kinematics.ksVolts,
+                      Kinematics.kvVoltSecondsPerMeter,
+                      Kinematics.kaVoltSecondsSquaredPerMeter),
+                    Kinematics.kDriveKinematics,
+                    10);
+    
+        // Create config for trajectory
+    public static final TrajectoryConfig kTrajectoryConfig =
+            new TrajectoryConfig(kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared)
+                // Add kinematics to ensure max speed is actually obeyed
+                .setKinematics(Kinematics.kDriveKinematics)
+                // Apply the voltage constraint
+                .addConstraint(kAutoVoltageConstraint);
   }
 
   /**

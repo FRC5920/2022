@@ -58,6 +58,7 @@ import java.nio.file.Paths;
 import java.io.IOException;
 
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
+import edu.wpi.first.math.trajectory.Trajectory;
 
 ///////////////////////////////////////////////////////////////////////////////
 /**
@@ -134,10 +135,11 @@ public class TrajectoryLoader {
       String fileName = f.getName();
 
       try {
-        observer.onTrajectoryCreated(fileName, TrajectoryUtil.fromPathweaverJson(filePath));
+        Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(filePath);
+        observer.onTrajectoryCreated(fileName, trajectory);
         ++count;
       } catch (IOException e) {
-        observer.onLoadFailed(filePath);
+        observer.onLoadFailed(filePath, e.toString());
       }
     }
 

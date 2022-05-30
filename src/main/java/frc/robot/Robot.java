@@ -65,7 +65,6 @@
 package frc.robot;
 
 import java.nio.file.Path;
-import java.nio.file.InvalidPathException;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -114,19 +113,7 @@ public class Robot extends TimedRobot {
     Path pathsDir = Filesystem.getDeployDirectory().toPath().resolve("paths");
     HashMapLoader mapLoader = new HashMapLoader();
 
-    try {
-      TrajectoryLoader.loadJSONFiles(pathsDir, mapLoader);
-    } catch (InvalidPathException e) {
-      String msg = String.format("Failed to open paths directory '%s': %s", pathsDir.toString(), e.getCause());
-      DriverStation.reportError(msg, false);
-    }
 
-    // Report any files that couldn't be loaded into Trajectory objects
-    if (!mapLoader.failedFiles.isEmpty()) {
-      for (String filePath : mapLoader.failedFiles) {
-        DriverStation.reportError("Failed to load trajectory from " + filePath, false);
-      }
-    }
 
     // TODO: construct TrajectoryCommand objects for Trajectory objects loaded from
     // JSON files

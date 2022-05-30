@@ -340,7 +340,6 @@ public class WestCoastDriveTrain extends SubsystemBase {
     return m_sendableGains;
   }
 
-
   /**
    * Stop behaviors for a motor
    */

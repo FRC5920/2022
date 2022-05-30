@@ -64,11 +64,16 @@
 
 package frc.robot;
 
+import java.nio.file.Path;
+
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.RobotState;
 import frc.robot.commands.DriveByJoysticks;
 import frc.robot.subsystems.driveBase.WestCoastDriveTrain;
 import frc.robot.subsystems.joystick.JoystickSubsystem;
 import frc.robot.subsystems.dashboard.DashboardSubsystem;
 import frc.robot.subsystems.runtimeState.BotStateSubsystem;
+import frc.robot.commands.autonomous.PathweaverCommandFactory;
 
 /////////////////////////////////////////////////////////////////////////////
 /**
@@ -86,14 +91,18 @@ public class RobotContainer {
   public BotStateSubsystem botState;
   public WestCoastDriveTrain driveBaseSubsystem;
   public DashboardSubsystem dashboardSubsystem;
+  public PathweaverCommandFactory pathweaverFactory;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    // Load trajectories from JSON files and set up a factory for creating auto routine Commands
+    pathweaverFactory = new PathweaverCommandFactory("paths/output");
     joystickSubsystem = new JoystickSubsystem();
     botState = new BotStateSubsystem();
     driveBaseSubsystem = new WestCoastDriveTrain();
+
     dashboardSubsystem = new DashboardSubsystem(this);
 
     // Configure the button bindings

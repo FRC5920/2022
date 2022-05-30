@@ -54,6 +54,8 @@ package frc.robot.subsystems.dashboard;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -97,14 +99,15 @@ public class ShowtimeDashboardTab extends Object implements IDashboardTab {
     m_tab = Shuffleboard.getTab("Showtime");
     m_botState = botContainer.botState;
 
+    // Populate auto chooser from Pathweaver files
     m_autoRoutineChooser = new SendableChooser<>();
-    m_autoRoutineChooser.addOption("Simple Auto", new Auto(botContainer.driveBaseSubsystem));
-    m_autoRoutineChooser.addOption("Red 1", new AutoRedOne());
-    m_autoRoutineChooser.addOption("Red 2", new AutoRedTwo());
-    m_autoRoutineChooser.addOption("Red 3", new AutoRedThree());
-    m_autoRoutineChooser.addOption("Blue 1", new AutoBlueOne());
-    m_autoRoutineChooser.addOption("Blue 2", new AutoBlueTwo());
-    m_autoRoutineChooser.addOption("Blue 3", new AutoBlueThree());
+    for (String name : botContainer.pathweaverFactory.getTrajectoryNames()) {
+      Trajectory trajectory = botContainer.pathweaverFactory.getTrajectory(name);
+
+      m_autoRoutineChooser.addOption(name,
+        botContainer.pathweaverFactory.createPathweaverCommand(trajectory, 
+        botContainer.driveBaseSubsystem));
+    }
 
     m_stealthMode = new SendableChooser<>();
     m_stealthMode.setDefaultOption("Stealth OFF", "Normal");
