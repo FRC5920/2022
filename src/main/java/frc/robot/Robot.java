@@ -64,24 +64,14 @@
 
 package frc.robot;
 
-import java.nio.file.Path;
-
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj.Filesystem;
-
-import frc.robot.utility.trajectoryLoader.HashMapLoader;
-import frc.robot.utility.trajectoryLoader.TrajectoryLoader;
 
 /**
- * The VM is configured to automatically run this class, and to call the
- * functions corresponding to
- * each mode, as described in the TimedRobot documentation. If you change the
- * name of this class or
- * the package after creating this project, you must also update the
- * build.gradle file in the
+ * The VM is configured to automatically run this class, and to call the functions corresponding to
+ * each mode, as described in the TimedRobot documentation. If you change the name of this class or
+ * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
 public class Robot extends TimedRobot {
@@ -93,8 +83,7 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
 
   /**
-   * This function is run when the robot is first started up and should be used
-   * for any
+   * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
   @Override
@@ -103,41 +92,15 @@ public class Robot extends TimedRobot {
     // and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-    
-    // ------------------------------
-    // Load PathWeaver Data
-    // ------------------------------
-    // Create Trajectory objects from JSON files in the 'paths' directory
-    // Reference: Importing a PathWeaver JSON
-    // https://docs.wpilib.org/en/stable/docs/software/pathplanning/pathweaver/integrating-robot-program.html
-    Path pathsDir = Filesystem.getDeployDirectory().toPath().resolve("paths");
-    HashMapLoader mapLoader = new HashMapLoader();
-
-
-
-    // TODO: construct TrajectoryCommand objects for Trajectory objects loaded from
-    // JSON files
-    // The data loaded from files is contained in mapLoader.trajectoryMap. Each
-    // element's key
-    // contains the name of a JSON file and its value is the Trajectory object
-    // constructed from
-    // the JSON data.
-
-    // ------------------------------
-    // END PathWeaver Data
-    // ------------------------------
   }
 
   /**
-   * This function is called every robot packet, no matter the mode. Use this for
-   * items like
-   * diagnostics that you want ran during disabled, autonomous, teleoperated and
-   * test.
+   * This function is called every robot packet, no matter the mode. Use this for items like
+   * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
    *
    * <p>
-   * This runs after the mode specific periodic functions, but before LiveWindow
-   * and
-   * SmartDashboard integrated updating.
+   * This runs after the mode specific periodic functions, but before LiveWindow and SmartDashboard
+   * integrated updating.
    */
   @Override
   public void robotPeriodic() {
@@ -158,24 +121,22 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    m_robotContainer.botState.isRedAlliance = 
-      (DriverStation.Alliance.Red == DriverStation.getAlliance());
   }
 
   /**
-   * This autonomous runs the autonomous command selected by your
-   * {@link RobotContainer} class.
+   * This autonomous runs the autonomous command selected by your {@link RobotContainer} class.
    */
   @Override
   public void autonomousInit() {
     // Reset all encoders to 0
     m_robotContainer.driveBaseSubsystem.resetEncoders();
-    m_robotContainer.dashboardSubsystem.initialize(m_robotContainer);
 
-    // schedule the autonomous command (example)
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
-    }
+    // Schedule the present selected autonomous command
+    String selectedAutoName = m_robotContainer.dashboardSubsystem.getSelectedAutoRoutine();
+    m_autonomousCommand = m_robotContainer.pathweaverFactory.createPathweaverCommand(
+        m_robotContainer.pathweaverFactory.getTrajectory(selectedAutoName),
+        m_robotContainer.driveBaseSubsystem);
+    m_autonomousCommand.schedule();
   }
 
   /** This function is called periodically during autonomous. */
@@ -195,10 +156,9 @@ public class Robot extends TimedRobot {
 
     m_robotContainer.driveBaseSubsystem.setMotorSafetyEnabled(true);
     m_robotContainer.driveBaseSubsystem.setMotorSafetyEnabled(true);
-    m_robotContainer.dashboardSubsystem.initialize(m_robotContainer);
-    
-    
-    m_robotContainer.driveBaseSubsystem.LimitMotors(m_robotContainer.botState.currentLimitingIsEnabled);
+
+    m_robotContainer.driveBaseSubsystem
+        .LimitMotors(m_robotContainer.botState.getCurrentLimitEnabled());
   }
 
   /** This function is called periodically during operator control. */

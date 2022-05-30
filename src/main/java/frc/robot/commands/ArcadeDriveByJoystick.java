@@ -93,7 +93,6 @@ public class ArcadeDriveByJoystick extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // TODO: move dashboard code in DriveByJoystick into the DashboardSubsystem
     if (m_joystickSubsystem.driverController.bumpRight.get()) {
       m_drivePowerModifer = Constants.MotorScaler.DriveMidLimit;
       SmartDashboard.putString("Speed", "Medium");
@@ -112,7 +111,7 @@ public class ArcadeDriveByJoystick extends CommandBase {
     //    Left stick X-axis (left/right) controls rate of rotation
 
     // Invert the joystick according to the present robot direction 
-    double inverter = (m_botState.DriveDirection == RobotDirection.Forward) ? 1.0 : -1.0;
+    double inverter = (m_botState.getDriveDirection() == RobotDirection.Forward) ? 1.0 : -1.0;
     double speed = -1.0 * m_joystickSubsystem.driverController.leftStickY() * inverter;
     double rotationRate = m_joystickSubsystem.driverController.leftStickX() * inverter;
 

@@ -64,10 +64,8 @@
 
 package frc.robot;
 
-import java.nio.file.Path;
+import edu.wpi.first.wpilibj.Filesystem;
 
-import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.RobotState;
 import frc.robot.commands.DriveByJoysticks;
 import frc.robot.subsystems.driveBase.WestCoastDriveTrain;
 import frc.robot.subsystems.joystick.JoystickSubsystem;
@@ -97,12 +95,17 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    // Load trajectories from JSON files and set up a factory for creating auto routine Commands
-    pathweaverFactory = new PathweaverCommandFactory("paths/output");
-    joystickSubsystem = new JoystickSubsystem();
-    botState = new BotStateSubsystem();
-    driveBaseSubsystem = new WestCoastDriveTrain();
 
+    // Load Trajectory objects from JSON files under the 'deploy/paths' directory
+    // Reference: Importing a PathWeaver JSON
+    // https://docs.wpilib.org/en/stable/docs/software/pathplanning/pathweaver/integrating-robot-program.html
+    pathweaverFactory = new PathweaverCommandFactory(
+      Filesystem.getDeployDirectory().toPath().resolve("paths/output"));
+    
+    // Initialize subsystems
+    botState = new BotStateSubsystem();
+    joystickSubsystem = new JoystickSubsystem();
+    driveBaseSubsystem = new WestCoastDriveTrain();
     dashboardSubsystem = new DashboardSubsystem(this);
 
     // Configure the button bindings

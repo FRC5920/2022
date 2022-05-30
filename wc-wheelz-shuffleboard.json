@@ -1,19 +1,6 @@
 {
   "tabPane": [
     {
-      "title": "SmartDashboard",
-      "autoPopulate": true,
-      "autoPopulatePrefix": "SmartDashboard/",
-      "widgetPane": {
-        "gridSize": 128.0,
-        "showGrid": true,
-        "hgap": 16.0,
-        "vgap": 16.0,
-        "titleType": 0,
-        "tiles": {}
-      }
-    },
-    {
       "title": "LiveWindow",
       "autoPopulate": true,
       "autoPopulatePrefix": "LiveWindow/",
@@ -26,62 +13,92 @@
         "tiles": {
           "0,0": {
             "size": [
-              2,
-              4
+              6,
+              1
             ],
             "content": {
-              "_type": "Subsystem Layout",
-              "_source0": "network_table:///LiveWindow/Ungrouped",
-              "_title": "Ungrouped",
+              "_type": "Grid Layout",
+              "_title": "Grid Layout",
+              "Layout/Number of columns": 5,
+              "Layout/Number of rows": 1,
               "Layout/Label position": "BOTTOM",
-              "_children": [
-                {
-                  "_type": "Gyro",
-                  "_source0": "network_table:///LiveWindow/Ungrouped/ADXRS450_Gyro[0]",
-                  "_title": "ADXRS450_Gyro[0]",
-                  "Visuals/Major tick spacing": 45.0,
-                  "Visuals/Starting angle": 180.0,
-                  "Visuals/Show tick mark ring": true,
-                  "Visuals/Counter clockwise": false
+              "_children": {
+                "0,0": {
+                  "_type": "Boolean Box",
+                  "_source0": "network_table:///Shuffleboard/Showtime/Runtime/Alliance",
+                  "_title": "Alliance",
+                  "Colors/Color when true": "#FF0000FF",
+                  "Colors/Color when false": "#0000FFFF"
                 },
-                {
-                  "_type": "Differential Drivebase",
-                  "_source0": "network_table:///LiveWindow/Ungrouped/DifferentialDrive[1]",
-                  "_title": "DifferentialDrive[1]",
-                  "Wheels/Number of wheels": 4,
-                  "Wheels/Wheel diameter": 80.0,
-                  "Visuals/Show velocity vectors": true
+                "1,0": {
+                  "_type": "ComboBox Chooser",
+                  "_source0": "network_table:///Shuffleboard/Showtime/Runtime/Auto Routine",
+                  "_title": "Active Auto Routine"
+                },
+                "2,0": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///Shuffleboard/Showtime/Runtime/Direction",
+                  "_title": "Drive Direction"
+                },
+                "3,0": {
+                  "_type": "Boolean Box",
+                  "_source0": "network_table:///Shuffleboard/Showtime/Runtime/Manual Mode",
+                  "_title": "Manual Control",
+                  "Colors/Color when true": "#FFFF00FF",
+                  "Colors/Color when false": "#B3B3B3FF"
+                },
+                "4,0": {
+                  "_type": "Toggle Switch",
+                  "_source0": "network_table:///Shuffleboard/Showtime/Runtime/Motor Current Limit",
+                  "_title": "Current Limiting"
                 }
-              ]
+              }
             }
           },
-          "2,0": {
+          "0,1": {
             "size": [
-              2,
+              6,
               4
             ],
             "content": {
-              "_type": "Subsystem Layout",
-              "_source0": "network_table:///LiveWindow/BotStateSubsystem",
-              "_title": "BotStateSubsystem",
-              "Layout/Label position": "BOTTOM",
-              "_children": []
+              "_type": "Field",
+              "_source0": "network_table:///Shuffleboard/Showtime/Field",
+              "_title": "Shuffleboard/Showtime/Field",
+              "Game/Game": "A2022_Rapid_React",
+              "Visuals/Robot Icon Size": 50.0,
+              "Visuals/Show Outside Circles": false
             }
           },
-          "4,0": {
+          "6,2": {
             "size": [
-              2,
-              4
+              3,
+              2
             ],
             "content": {
-              "_type": "Subsystem Layout",
-              "_source0": "network_table:///LiveWindow/WestCoastDriveTrain",
-              "_title": "WestCoastDriveTrain",
-              "Layout/Label position": "BOTTOM",
-              "_children": []
+              "_type": "Differential Drivebase",
+              "_source0": "network_table:///LiveWindow/Ungrouped/DifferentialDrive[1]",
+              "_title": "DifferentialDrive",
+              "Wheels/Number of wheels": 6,
+              "Wheels/Wheel diameter": 40.0,
+              "Visuals/Show velocity vectors": true
             }
           },
           "6,0": {
+            "size": [
+              2,
+              2
+            ],
+            "content": {
+              "_type": "Gyro",
+              "_source0": "network_table:///LiveWindow/Ungrouped/ADXRS450_Gyro[0]",
+              "_title": "ADXRS450_Gyro",
+              "Visuals/Major tick spacing": 45.0,
+              "Visuals/Starting angle": 180.0,
+              "Visuals/Show tick mark ring": true,
+              "Visuals/Counter clockwise": false
+            }
+          },
+          "9,0": {
             "size": [
               2,
               4
@@ -94,7 +111,7 @@
               "_children": []
             }
           },
-          "8,0": {
+          "11,0": {
             "size": [
               2,
               4
@@ -115,6 +132,6 @@
     "x": 0.0,
     "y": 0.0,
     "width": 1920.0,
-    "height": 1044.0
+    "height": 1055.0
   }
 }

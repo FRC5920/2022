@@ -93,7 +93,6 @@ public class DriveByJoysticks extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // TODO: move dashboard code in DriveByJoystick into the DashboardSubsystem
     if (m_joystickSubsystem.driverController.bumpRight.get()) {
       m_drivePowerModifer = Constants.MotorScaler.DriveMidLimit;
       SmartDashboard.putString("Speed", "Medium");
@@ -109,8 +108,9 @@ public class DriveByJoysticks extends CommandBase {
 
     double leftY = m_joystickSubsystem.driverController.leftStickY();
     double rightY = m_joystickSubsystem.driverController.rightStickY();
-    double leftPercent = (m_botState.DriveDirection == RobotDirection.Forward) ? rightY : leftY;
-    double rightPercent = (m_botState.DriveDirection == RobotDirection.Forward) ? leftY : rightY;
+    BotStateSubsystem.RobotDirection driveDirection = m_botState.getDriveDirection();
+    double leftPercent = (driveDirection == RobotDirection.Forward) ? rightY : leftY;
+    double rightPercent = (driveDirection == RobotDirection.Forward) ? leftY : rightY;
 
     m_driveBaseSubsystem.tankDrivePercent(m_drivePowerModifer * leftPercent,
                                           m_drivePowerModifer * rightPercent);

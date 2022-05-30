@@ -81,4 +81,11 @@ public class DashboardSubsystem extends SubsystemBase {
     m_showtimeTab.periodic();
     m_driveTrainTab.periodic();
   }
+
+  /** Returns the present selected autonomous routine 
+   * @return A String containing the name of the selected autonomous routine
+  */
+  public String getSelectedAutoRoutine() {
+    return m_showtimeTab.getSelectedAutoName();
+  }
 }

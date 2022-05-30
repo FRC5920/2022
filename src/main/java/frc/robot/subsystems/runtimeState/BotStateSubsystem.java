@@ -51,7 +51,7 @@
 
 package frc.robot.subsystems.runtimeState;
 import edu.wpi.first.wpilibj.RobotState;
-
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class BotStateSubsystem extends SubsystemBase {
@@ -72,12 +72,14 @@ public class BotStateSubsystem extends SubsystemBase {
     }
   };
 
-  public boolean ManualControl = false;
-  public RobotDirection DriveDirection = RobotDirection.Forward;
-  public boolean isRedAlliance = false;
-  public boolean RobotShooting = false;
-  public boolean StealthMode = false;
-  public boolean currentLimitingIsEnabled = false;
+  /** true when manual control is active; else false */
+  private boolean m_manualControl = false;
+  /** The present direction modifier for manual control */
+  private RobotDirection m_driveDirection = RobotDirection.Forward;
+  /** true when the robot is shooting; else false */
+  private boolean m_robotIsShooting = false;
+  /** true when motor current limiting is enabled; else false */
+  private boolean m_currentLimitingIsEnabled = false;
 
   /** 
    * Creates an instance of the object
@@ -90,19 +92,74 @@ public class BotStateSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
   }  
 
+  /** Gets the current manual control enablement 
+   * @return true if manual control is enabled
+  */
+  public boolean manualControlIsEnabled() {
+    return m_manualControl;
+  }
+
+  /** Enables/disables manual control 
+   * @param enable  true to enable manual control; else false
+  */
+  public void enableManualControl(boolean enable) {
+    m_manualControl = enable;
+  }
+
+  /** Gets the current drive direction */
+  public RobotDirection getDriveDirection() {
+    return m_driveDirection;
+  }
+
   /**
    * Inverts the present drive direction of the bot
   */
   public void invertDriveDirection() {
-    DriveDirection = (RobotDirection.Forward == DriveDirection) ?
+    m_driveDirection = (RobotDirection.Forward == m_driveDirection) ?
                         RobotDirection.Reverse : RobotDirection.Forward;
   }
 
+  /** Returns whether the robot is shooting or not 
+   * @return true if the robot is presently shooting; else false
+  */
+  public boolean robotIsShooting() {
+    return m_robotIsShooting;
+  }
+
+  /** Returns whether the present alliance is the Red alliance
+   * @return true if the present alliance is Red; else false
+   */
+  public boolean isRedAlliance() {
+    return DriverStation.Alliance.Red == DriverStation.getAlliance();
+  }
+
+  /** Returns whether the present alliance is the Blue alliance
+   * @return true if the present alliance is Blue; else false
+   */
+  public boolean isBlueAlliance() {
+    return DriverStation.Alliance.Blue == DriverStation.getAlliance();
+  }
+
+  /** Sets whether the  */
   /**
    * Returns true if the robot is being driven in Manual, tele-operated mode
    */
   public boolean robotIsInManualTeleOpMode() {
-    return (RobotState.isEnabled() && RobotState.isTeleop() && ManualControl);
+    return (RobotState.isEnabled() && RobotState.isTeleop() && m_manualControl);
+  }
+
+  /** Gets the enablement of motor current limiting
+   * @return true if motor current limiting is enabled; else false
+   */
+  public boolean getCurrentLimitEnabled() {
+    return m_currentLimitingIsEnabled;
+  }
+
+  /** Sets motor current limiting enablement
+   * @param enabled  true to enable motor current limiting; else false to disable
+   */
+  public void setCurrentLimitEnabled(boolean enabled) {
+    m_currentLimitingIsEnabled = enabled;
   }
 
 }
