@@ -67,6 +67,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.math.trajectory.Trajectory;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -130,12 +131,16 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     // Reset all encoders to 0
     m_robotContainer.driveBaseSubsystem.resetEncoders();
+    m_robotContainer.driveBaseSubsystem.zeroHeading();
 
     // Schedule the present selected autonomous command
     String selectedAutoName = m_robotContainer.dashboardSubsystem.getSelectedAutoRoutine();
-    m_autonomousCommand = m_robotContainer.pathweaverFactory.createPathweaverCommand(
-        m_robotContainer.pathweaverFactory.getTrajectory(selectedAutoName),
+    Trajectory trajectory = m_robotContainer.pathweaverFactory.getTrajectory(selectedAutoName);
+    m_autonomousCommand = m_robotContainer.pathweaverFactory.createPathweaverCommand(trajectory,
         m_robotContainer.driveBaseSubsystem);
+
+    // Display the current Trajectory in the dashboard field view
+    m_robotContainer.dashboardSubsystem.setCurrentTrajectory(trajectory);
     m_autonomousCommand.schedule();
   }
 
@@ -157,8 +162,8 @@ public class Robot extends TimedRobot {
     m_robotContainer.driveBaseSubsystem.setMotorSafetyEnabled(true);
     m_robotContainer.driveBaseSubsystem.setMotorSafetyEnabled(true);
 
-    m_robotContainer.driveBaseSubsystem
-        .LimitMotors(m_robotContainer.botState.getCurrentLimitEnabled());
+    //m_robotContainer.driveBaseSubsystem
+    //    .limitMotors(m_robotContainer.botState.getCurrentLimitEnabled());
   }
 
   /** This function is called periodically during operator control. */

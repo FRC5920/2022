@@ -55,6 +55,7 @@ package frc.robot.subsystems.dashboard;
 import java.util.Arrays;
 import java.util.Map;
 
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -220,4 +221,8 @@ public class ShowtimeDashboardTab extends Object implements IDashboardTab {
     return m_autoRoutineChooser.getSelected();
   }
 
+  /** Sets the current trajectory displayed by the Field2d widget */
+  public void setCurrentTrajectory(Trajectory trajectory) {
+    m_field2d.getObject("traj").setTrajectory(trajectory);
+  }
 }

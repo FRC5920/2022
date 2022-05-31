@@ -200,9 +200,9 @@ public class Constants {
 		public static final double kIntakeMotorSpeed = 0.7; // Speed to run the motor on the intake arm
 		public static final double kClimberSpeed = 0.75; // 1.0;
     //These are voltage limits now no longer percentage
-		public static final double DriveStandardLimit = 11;
-		public static final double DriveMidLimit = 6;
-		public static final double DriveSlowLimit = 4;
+		public static final double DriveStandardLimit = 1.0;
+		public static final double DriveMidLimit = 0.6;
+		public static final double DriveSlowLimit = 0.4;
 	}
 
 	public static final class ShooterConstants {

@@ -51,8 +51,8 @@
 
 package frc.robot.subsystems.dashboard;
 
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import frc.robot.RobotContainer;
 
 /**
@@ -80,6 +80,10 @@ public class DashboardSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
     m_showtimeTab.periodic();
     m_driveTrainTab.periodic();
+
+    String selectedAutoName = getSelectedAutoRoutine();
+    Trajectory trajectory = RobotContainer.pathweaverFactory.getTrajectory(selectedAutoName);
+    setCurrentTrajectory(trajectory);
   }
 
   /** Returns the present selected autonomous routine 
@@ -87,5 +91,10 @@ public class DashboardSubsystem extends SubsystemBase {
   */
   public String getSelectedAutoRoutine() {
     return m_showtimeTab.getSelectedAutoName();
+  }
+
+  /** Sets the current trajectory displayed by the Field2d widget */
+  public void setCurrentTrajectory(Trajectory trajectory) {
+    m_showtimeTab.setCurrentTrajectory(trajectory);
   }
 }

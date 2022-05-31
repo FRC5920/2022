@@ -65,13 +65,13 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Filesystem;
-
-import frc.robot.commands.DriveByJoysticks;
+import edu.wpi.first.wpilibj.RobotState;
+import frc.robot.commands.ArcadeDriveByJoystick;
 import frc.robot.subsystems.driveBase.WestCoastDriveTrain;
 import frc.robot.subsystems.joystick.JoystickSubsystem;
 import frc.robot.subsystems.dashboard.DashboardSubsystem;
 import frc.robot.subsystems.runtimeState.BotStateSubsystem;
-import frc.robot.commands.autonomous.PathweaverCommandFactory;
+import frc.robot.utility.PathweaverCommandFactory;
 
 /////////////////////////////////////////////////////////////////////////////
 /**
@@ -89,7 +89,7 @@ public class RobotContainer {
   public BotStateSubsystem botState;
   public WestCoastDriveTrain driveBaseSubsystem;
   public DashboardSubsystem dashboardSubsystem;
-  public PathweaverCommandFactory pathweaverFactory;
+  public static PathweaverCommandFactory pathweaverFactory;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -113,7 +113,7 @@ public class RobotContainer {
 
     // Make the drive base be driven by Joystick commands when not processing
     // another command
-    driveBaseSubsystem.setDefaultCommand(new DriveByJoysticks(this));
+    driveBaseSubsystem.setDefaultCommand(new ArcadeDriveByJoystick(this));
     dashboardSubsystem.initialize(this);
   }
 

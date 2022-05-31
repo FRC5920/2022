@@ -71,9 +71,9 @@ public class WCDriveConstants {
    */
   public static final class Motors {
     /** CAN ID of the left master motor */
-    public static final int kLeftMasterCANid = 1; // Falcon 500
+    public static final int kLeftMasterCANid = 2; // Falcon 500
     /** CAN ID of the right master motor */
-    public static final int kRightMasterCANid = 2; // Falcon 500
+    public static final int kRightMasterCANid = 1; // Falcon 500
 
     /** The number of motors used in the drive base subsystem */
     public static final int kNumMotors = 2;
@@ -83,7 +83,7 @@ public class WCDriveConstants {
      * Amps to full current. Greater values can help to limit motor current draw, but may result in
      * less responsive control.
      */
-    public static final double kMotorRampTimeSec = 0.01;
+    public static final double kMotorRampTimeSec = 0.1;
   }
 
   /**
@@ -97,10 +97,10 @@ public class WCDriveConstants {
    */
   private static final class PhysicalImp {
     /** Width of the west coast drive tracks in inches */
-    public static final double kTrackWidthInches = 27.16535; // Measured 2/27/2022
+    public static final double kTrackWidthInches = 22.0; // Measured 5/31/2022
 
     /** Diameter of wheels in the west coast drive train (inches) */
-    public static final double kWheelDiameterInches = 2.004; // Measured 2/27/2022
+    public static final double kWheelDiameterInches = 6.0; // Measured 5/31/2022
 
     /** Gear ratio applied between drive motors and wheels */
     public static final double kGearRatio = 8.45; // (8.45:1 gear ratio - Defined 2/27/2022)
@@ -139,16 +139,16 @@ public class WCDriveConstants {
    */
   public static final class Kinematics {
     /** Feed-forward static gain (ks) */
-    public static final double ksVolts = 0.0;
+    public static final double ksVolts = 0.61949;
     /** Feed-forward velocity gain (kv) */
-    public static final double kvVoltSecondsPerMeter = 0.0;
+    public static final double kvVoltSecondsPerMeter = 2.0162;
     /** Feed-forward acceleration gain (kv) */
-    public static final double kaVoltSecondsSquaredPerMeter = 0.0;
+    public static final double kaVoltSecondsSquaredPerMeter = .46034;
 
     /** Maximum speed the robot should move at (meters per second) */
-    public static final double kMaxSpeedMetersPerSec = 3.0;
+    public static final double kMaxSpeedMetersPerSec = 1.0;
     /** Maximum angular speed the robot should have (rotations per second) */
-    public static final double kMaxAngularSpeedRotPerSec = 1 * Math.PI; // 0.5 rotation per second
+    public static final double kMaxAngularSpeedRotPerSec = 0.5 * Math.PI; // 0.5 rotation per second
 
     /** Kinematic model for the drive train */
     public static final DifferentialDriveKinematics kDriveKinematics =
@@ -162,12 +162,12 @@ public class WCDriveConstants {
    */
   public static final class Autonomous {
     /** Maximum speed (meters/second).  Set this slightly below nominal free speed of the bot */
-    public static final double kMaxSpeedMetersPerSecond = 3.0;
+    public static final double kMaxSpeedMetersPerSecond = 1.0;
     /** 
      * Maximum acceleration (meters/second^2).  The value of this constant becomes less critical
      * when a DifferentialDriveVoltageConstraint is applied in the auto routine.
      */
-    public static final double kMaxAccelerationMetersPerSecondSquared = 1.0;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 0.5;
 
     /** Voltage constraint applied to autonomous routines to limit acceleration */
     public static final DifferentialDriveVoltageConstraint kAutoVoltageConstraint =

@@ -49,7 +49,7 @@
 |                         .OOOOOOOOOOOOOOOOOOOOOOOOOOOOOO                      |
 \-----------------------------------------------------------------------------*/
 
-package frc.robot.commands.autonomous;
+package frc.robot.utility;
 
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -63,10 +63,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
-
-import frc.robot.utility.PIDGains;
-import frc.robot.utility.SendableGains;
-import frc.robot.utility.PathweaverTrajectoryFile;
 import frc.robot.subsystems.driveBase.WestCoastDriveTrain;
 import frc.robot.subsystems.driveBase.WCDriveConstants;
 
@@ -102,7 +98,13 @@ public class PathweaverCommandFactory {
   /**
    * PID gains to use in conjunction with the Ramsete command used by Pathweaver commands
    */
-  private final PIDGains m_gains = new PIDGains();
+  private final PIDGains m_gains = new PIDGains(
+    true, // Enabled
+    1.1182, // kP
+    0.0,    // kI
+    0.0,    // kD
+    0.0     // kF
+  );
 
   /** Object used to make m_gains editable via the dashboard */
   private final SendableGains m_sendableGains = new SendableGains(m_gains);

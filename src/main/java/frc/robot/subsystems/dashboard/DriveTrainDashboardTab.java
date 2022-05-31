@@ -53,11 +53,12 @@ package frc.robot.subsystems.dashboard;
 
 import java.util.Map;
 
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.driveBase.WestCoastDriveTrain;
 
@@ -120,5 +121,12 @@ public class DriveTrainDashboardTab implements IDashboardTab {
     // if (m_gainTunerRight.process()) {
     // m_driveTrainSubsystem.updateRightMotorGains();
     // }
+    double distanceMeters[] = m_driveTrainSubsystem.getSensorDistanceMeters();
+    DifferentialDriveWheelSpeeds speeds = m_driveTrainSubsystem.getWheelSpeeds();
+
+    SmartDashboard.putNumber("Left Distance", distanceMeters[0]);
+    SmartDashboard.putNumber("Right Distance", distanceMeters[1]);
+    SmartDashboard.putNumber("Left Velocity", speeds.leftMetersPerSecond);
+    SmartDashboard.putNumber("Right Velocity", speeds.rightMetersPerSecond);
   }
 }

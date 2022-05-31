@@ -55,7 +55,7 @@ import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
-
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
@@ -186,10 +186,8 @@ public class WestCoastDriveTrain extends SubsystemBase {
    * Returns the current wheel speeds of the robot
    */
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-    // NOTE: sensor velocity (ticks per 100 msec) is converted to meters/second
-    return new DifferentialDriveWheelSpeeds(
-        falconVelocityToSI(m_leftFalcons[0].getSelectedSensorVelocity()),
-        falconVelocityToSI(m_rightFalcons[0].getSelectedSensorVelocity()));
+    double velocity[] = getEncoderVelocitySI();
+    return new DifferentialDriveWheelSpeeds(velocity[0], velocity[1]);
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -197,9 +195,10 @@ public class WestCoastDriveTrain extends SubsystemBase {
    * Updates the field-relative position using odometry measurements
    */
   public void updateOdometry() {
-    m_odometry.update(m_gyro.getRotation2d(),
-        falconDistanceToSI(m_leftFalcons[0].getSelectedSensorPosition()),
-        falconDistanceToSI(m_rightFalcons[0].getSelectedSensorPosition()));
+    //var gyroAngle = Rotation2d.fromDegrees(-1.0 * m_gyro.getAngle());
+    Rotation2d gyroAngle = m_gyro.getRotation2d();
+    double distance[] = getSensorDistanceMeters();
+    m_odometry.update(gyroAngle, distance[0], distance[1]);
 
     // NOTE: Additional measurements can be applied to the pose estimate
     // See the WPILib example provided at:
@@ -274,10 +273,20 @@ public class WestCoastDriveTrain extends SubsystemBase {
 
   /////////////////////////////////////////////////////////////////////////////
   /** Returns the average distance (in meters) indicated by left and right side encoders */
-  public double getAverageSensorDistance() {
-    double sensorDistance[] = getSensorDistance();
-    return (sensorDistance[kLeft] + sensorDistance[kRight]) / 2.0
-        * WCDriveConstants.PhysicalSI.kMetersPerEncoderTick;
+  public double getAverageSensorDistanceMeters() {
+    double sensorDistance[] = getSensorDistanceMeters();
+    return (sensorDistance[kLeft] + sensorDistance[kRight]) / 2.0;
+  }
+
+  /**
+   * Returns the sensor distance (meters) from the left and right drive train motors
+   * 
+   * @return An array containing sensor distances, with elements 0=left 1=right
+   */
+  public double[] getSensorDistanceMeters() {
+    double ticks[] = getEncoderDistance();
+    double distance[] = { falconDistanceToSI(ticks[0]), falconDistanceToSI(ticks[1]) };
+    return distance;
   }
 
   /**
@@ -285,10 +294,32 @@ public class WestCoastDriveTrain extends SubsystemBase {
    * 
    * @return An array containing sensor distances, with elements 0=left 1=right
    */
-  public double[] getSensorDistance() {
-    double distance[] = { m_leftFalcons[0].getSelectedSensorPosition(),
-        m_rightFalcons[0].getSelectedSensorPosition() };
-    return distance;
+  private double[] getEncoderDistance() {
+    double ticks[] = { m_leftFalcons[0].getSelectedSensorPosition(),
+                       -1.0 * m_rightFalcons[0].getSelectedSensorPosition() };
+    return ticks;
+  }
+
+  /**
+   * Returns the sensor velocity (meters per second) from the left and right drive train motors
+   * 
+   * @return An array containing sensor velocities, with elements 0=left 1=right
+   */
+  private double[] getEncoderVelocitySI() {
+    double velocityTicks[] = getEncoderVelocity();
+    return new double[]{ falconVelocityToSI(velocityTicks[0]),
+                         falconVelocityToSI(velocityTicks[1]) };
+  }
+
+  /**
+   * Returns the sensor velocity (encoder ticks per 100 ms) from the left and right drive train motors
+   * 
+   * @return An array containing sensor velocities, with elements 0=left 1=right
+   */
+  private double[] getEncoderVelocity() {
+    double ticks[] = { m_leftFalcons[0].getSelectedSensorVelocity(),
+                       -1.0 * m_rightFalcons[0].getSelectedSensorVelocity() };
+    return ticks;
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -391,6 +422,9 @@ public class WestCoastDriveTrain extends SubsystemBase {
       motor.configFactoryDefault();
     }
 
+    // Apply motor current limiting
+    limitMotors(true);
+
     // TODO: apply closed-loop gains to Falcon motors
 
     // We need to invert one side of the drivetrain so that positive voltages
@@ -400,7 +434,7 @@ public class WestCoastDriveTrain extends SubsystemBase {
   }
 
   /////////////////////////////////////////////////////////////////////////////
-  public void LimitMotors(boolean shouldLimit) {
+  public void limitMotors(boolean shouldLimit) {
     // Configure current limiting
     DriveTrainPowerBudget budget = new DriveTrainPowerBudget(200,
         WCDriveConstants.Motors.kNumMotors, 0.0);
@@ -412,12 +446,15 @@ public class WestCoastDriveTrain extends SubsystemBase {
         budget.motorLimitThresholdAmps(), // Threshold for current limiting
         budget.kMotorCurrentLimitHoldoffSec); // Time to wait before applying current limiting
 
-    m_leftFalcons[0].configSupplyCurrentLimit(limitConfig);
-    m_rightFalcons[0].configSupplyCurrentLimit(limitConfig);
-
-    // Configure current ramping (seconds required to ramp from neutral to full output)
-    m_leftFalcons[0].configOpenloopRamp(WCDriveConstants.Motors.kMotorRampTimeSec);
-    m_rightFalcons[0].configOpenloopRamp(WCDriveConstants.Motors.kMotorRampTimeSec);
+    for (WPI_TalonFX motor : m_leftFalcons) {
+      motor.configSupplyCurrentLimit(limitConfig);
+      motor.configOpenloopRamp(WCDriveConstants.Motors.kMotorRampTimeSec);
+    }
+    
+    for (WPI_TalonFX motor : m_rightFalcons) {
+      motor.configSupplyCurrentLimit(limitConfig);
+      motor.configOpenloopRamp(WCDriveConstants.Motors.kMotorRampTimeSec);
+    } 
   }
 
   /////////////////////////////////////////////////////////////////////////////

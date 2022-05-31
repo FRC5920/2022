@@ -2,10 +2,10 @@
   "tabPane": [
     {
       "title": "LiveWindow",
-      "autoPopulate": true,
+      "autoPopulate": false,
       "autoPopulatePrefix": "LiveWindow/",
       "widgetPane": {
-        "gridSize": 128.0,
+        "gridSize": 64.0,
         "showGrid": true,
         "hgap": 16.0,
         "vgap": 16.0,
@@ -13,8 +13,8 @@
         "tiles": {
           "0,0": {
             "size": [
-              6,
-              1
+              10,
+              2
             ],
             "content": {
               "_type": "Grid Layout",
@@ -55,35 +55,21 @@
               }
             }
           },
-          "0,1": {
+          "0,2": {
             "size": [
-              6,
-              4
+              8,
+              5
             ],
             "content": {
               "_type": "Field",
               "_source0": "network_table:///Shuffleboard/Showtime/Field",
-              "_title": "Shuffleboard/Showtime/Field",
+              "_title": "Field",
               "Game/Game": "A2022_Rapid_React",
-              "Visuals/Robot Icon Size": 50.0,
-              "Visuals/Show Outside Circles": false
+              "Visuals/Robot Icon Size": 80.0,
+              "Visuals/Show Outside Circles": true
             }
           },
-          "6,2": {
-            "size": [
-              3,
-              2
-            ],
-            "content": {
-              "_type": "Differential Drivebase",
-              "_source0": "network_table:///LiveWindow/Ungrouped/DifferentialDrive[1]",
-              "_title": "DifferentialDrive",
-              "Wheels/Number of wheels": 6,
-              "Wheels/Wheel diameter": 40.0,
-              "Visuals/Show velocity vectors": true
-            }
-          },
-          "6,0": {
+          "14,3": {
             "size": [
               2,
               2
@@ -98,30 +84,64 @@
               "Visuals/Counter clockwise": false
             }
           },
-          "9,0": {
+          "10,0": {
             "size": [
-              2,
-              4
+              6,
+              3
+            ],
+            "content": {
+              "_type": "Network Table Tree",
+              "_source0": "network_table:///LiveWindow/Ungrouped/Scheduler",
+              "_title": "Scheduler"
+            }
+          },
+          "17,0": {
+            "size": [
+              4,
+              7
             ],
             "content": {
               "_type": "Subsystem Layout",
-              "_source0": "network_table:///LiveWindow/DashboardSubsystem",
-              "_title": "DashboardSubsystem",
+              "_source0": "network_table:///LiveWindow/BotStateSubsystem",
+              "_title": "BotStateSubsystem",
               "Layout/Label position": "BOTTOM",
               "_children": []
             }
           },
-          "11,0": {
+          "8,3": {
+            "size": [
+              6,
+              4
+            ],
+            "content": {
+              "_type": "Differential Drivebase",
+              "_source0": "network_table:///LiveWindow/Ungrouped/DifferentialDrive[1]",
+              "_title": "DifferentialDrive",
+              "Wheels/Number of wheels": 6,
+              "Wheels/Wheel diameter": 58.0,
+              "Visuals/Show velocity vectors": true
+            }
+          },
+          "21,0": {
             "size": [
               2,
               4
             ],
             "content": {
-              "_type": "Subsystem Layout",
-              "_source0": "network_table:///LiveWindow/JoystickSubsystem",
-              "_title": "JoystickSubsystem",
-              "Layout/Label position": "BOTTOM",
-              "_children": []
+              "_type": "PID Controller",
+              "_source0": "network_table:///LiveWindow/Ungrouped/PIDController[1]",
+              "_title": "Ungrouped/PIDController[1]"
+            }
+          },
+          "21,4": {
+            "size": [
+              2,
+              4
+            ],
+            "content": {
+              "_type": "PID Controller",
+              "_source0": "network_table:///LiveWindow/Ungrouped/PIDController[2]",
+              "_title": "Ungrouped/PIDController[2]"
             }
           }
         }
@@ -129,9 +149,9 @@
     }
   ],
   "windowGeometry": {
-    "x": 0.0,
-    "y": 0.0,
-    "width": 1920.0,
-    "height": 1055.0
+    "x": -8.0,
+    "y": -8.0,
+    "width": 1382.0,
+    "height": 784.0
   }
 }

@@ -1,0 +1,18 @@
+{
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/LiveWindow/BotStateSubsystem": "Subsystem",
+      "/LiveWindow/DashboardSubsystem": "Subsystem",
+      "/LiveWindow/JoystickSubsystem": "Subsystem",
+      "/LiveWindow/Ungrouped/ADXRS450_Gyro[0]": "Gyro",
+      "/LiveWindow/Ungrouped/DifferentialDrive[1]": "DifferentialDrive",
+      "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
+      "/LiveWindow/WestCoastDriveTrain": "Subsystem",
+      "/Shuffleboard/Drive Train/Left Drivebase/Left PID Control": "PIDController",
+      "/Shuffleboard/Drive Train/Right Drivebase/Right PID Control": "PIDController",
+      "/Shuffleboard/Showtime/Field": "Field2d",
+      "/Shuffleboard/Showtime/Runtime/Auto Routine": "String Chooser"
+    }
+  }
+}
