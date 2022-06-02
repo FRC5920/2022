@@ -126,7 +126,7 @@ public class WCDriveConstants {
     public static final int kFalconTicksPerRevolution = 2048; // Falcon encoder tick count
     /** Distance (meters) represented by each drive motor encoder tick */
     public static final double kMetersPerEncoderTick = (kWheelDiameterMeters * Math.PI)
-        / (double) kFalconTicksPerRevolution * kGearRatio;
+        / ((double) kFalconTicksPerRevolution * kGearRatio);
 
   }
 
