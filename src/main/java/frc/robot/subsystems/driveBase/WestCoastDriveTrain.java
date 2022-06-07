@@ -59,6 +59,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 
@@ -256,7 +257,11 @@ public class WestCoastDriveTrain extends SubsystemBase {
    * @param leftVolts  Voltage applied to motors on the left side of the drive train
    * @param rightVolts  Voltage applied to motors on the right side of the drive train
    */
-  public void tankDriveVolts(double leftVolts, double rightVolts) {
+  public void tankDriveVolts(double leftVolts, double rightVolts) {    
+    SmartDashboard.putNumber("Left Volts", leftVolts);
+  SmartDashboard.putNumber("Right Volts", rightVolts);
+  SmartDashboard.putNumber("Left velocityspd", m_leftFalcons[0].getSelectedSensorPosition());
+  SmartDashboard.putNumber("Right velocityspd", m_rightFalcons[0].getSelectedSensorPosition());
     m_leftMotors.setVoltage(leftVolts);
     m_rightMotors.setVoltage(rightVolts);
     m_diffDrive.feed();
