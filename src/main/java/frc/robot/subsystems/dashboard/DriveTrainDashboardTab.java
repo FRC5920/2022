@@ -53,6 +53,8 @@ package frc.robot.subsystems.dashboard;
 
 import java.util.Map;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -179,5 +181,10 @@ public class DriveTrainDashboardTab implements IDashboardTab {
       m_velocityError[side].setDouble(velocityError[side]);
     }
 
+    Pose2d pose = m_driveTrainSubsystem.getPose();
+    Rotation2d rot = pose.getRotation();
+    m_poseX.setDouble(pose.getX());
+    m_poseY.setDouble(pose.getY());
+    m_poseRotation.setDouble(rot.getDegrees());
   }
 }
