@@ -78,8 +78,8 @@ public class DashboardSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    m_showtimeTab.periodic();
-    m_driveTrainTab.periodic();
+    m_showtimeTab.update();
+    m_driveTrainTab.update();
 
     String selectedAutoName = getSelectedAutoRoutine();
     Trajectory trajectory = RobotContainer.pathweaverFactory.getTrajectory(selectedAutoName);

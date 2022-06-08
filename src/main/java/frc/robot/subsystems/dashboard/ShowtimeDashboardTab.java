@@ -202,7 +202,7 @@ public class ShowtimeDashboardTab extends Object implements IDashboardTab {
    * Service dashboard tab widgets
    */
   @Override
-  public void periodic() {
+  public void update() {
     // SmartDashboard.putBoolean("Drive Direction",
     // m_botState.DriveDirection == RobotDirection.Forward);
     // SmartDashboard.putBoolean("Manual Mode", m_botState.ManualControl);

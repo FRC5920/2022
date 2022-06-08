@@ -170,20 +170,6 @@ public class WestCoastDriveTrain extends SubsystemBase {
 
   /////////////////////////////////////////////////////////////////////////////
   /**
-   * Sets the desired wheel speeds
-   *
-   * @param speeds The desired wheel speeds.
-   */
-  public void setWheelSpeeds(DifferentialDriveWheelSpeeds speeds) {
-    final double leftFeedforward = m_feedforward.calculate(speeds.leftMetersPerSecond);
-    final double rightFeedforward = m_feedforward.calculate(speeds.rightMetersPerSecond);
-
-    m_leftMotors.setVoltage(speeds.leftMetersPerSecond + leftFeedforward);
-    m_rightMotors.setVoltage(speeds.rightMetersPerSecond + rightFeedforward);
-  }
-
-  /////////////////////////////////////////////////////////////////////////////
-  /**
    * Returns the current wheel speeds of the robot
    */
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
@@ -290,7 +276,7 @@ public class WestCoastDriveTrain extends SubsystemBase {
    */
   public double[] getSensorDistanceMeters() {
     double ticks[] = getEncoderDistance();
-    double distance[] = { falconDistanceToSI(ticks[0]), falconDistanceToSI(ticks[1]) };
+    double distance[] = { falconEncoderDistanceToSI(ticks[0]), falconEncoderDistanceToSI(ticks[1]) };
     return distance;
   }
 
@@ -310,10 +296,10 @@ public class WestCoastDriveTrain extends SubsystemBase {
    * 
    * @return An array containing sensor velocities, with elements 0=left 1=right
    */
-  private double[] getEncoderVelocitySI() {
+  public double[] getEncoderVelocitySI() {
     double velocityTicks[] = getEncoderVelocity();
-    return new double[]{ falconVelocityToSI(velocityTicks[0]),
-                         falconVelocityToSI(velocityTicks[1]) };
+    return new double[]{ falconEncoderVelocityToSI(velocityTicks[0]),
+                         falconEncoderVelocityToSI(velocityTicks[1]) };
   }
 
   /**
@@ -361,7 +347,7 @@ public class WestCoastDriveTrain extends SubsystemBase {
    * 
    * @return An array of velocity control error in sensor ticks per second (0=left, 1=right)
    */
-  public double[] getVelocitySensorErrorPerSec() {
+  public double[] getVelocitySensorError() {
     double errorPerSec[] = { m_velocitySensorError[kLeft] * 10,
         m_velocitySensorError[kRight] * 10, };
 
@@ -377,12 +363,12 @@ public class WestCoastDriveTrain extends SubsystemBase {
   }
 
   /**
-   * Stop behaviors for a motor
+   * Drive train motor stop behaviors
    */
   public enum MotorStopBehavior {
-    /** Motor tends to brake to a stop */
+    /** Motors brake to a stop when requested speed/Volts/percent are zero */
     Brake,
-    /** Motor coasts to a stop */
+    /** Motors coast on their inertia when requested speed/Volts/percent are zero  */
     Coast;
   };
 
@@ -417,28 +403,6 @@ public class WestCoastDriveTrain extends SubsystemBase {
   }
 
   /////////////////////////////////////////////////////////////////////////////
-  /** Configures drive subsystem motors */
-  private void ConfigureMotors() {
-    for (WPI_TalonFX motor : m_leftFalcons) {
-      motor.configFactoryDefault();
-    }
-
-    for (WPI_TalonFX motor : m_rightFalcons) {
-      motor.configFactoryDefault();
-    }
-
-    // Apply motor current limiting
-    limitMotors(true);
-
-    // TODO: apply closed-loop gains to Falcon motors
-
-    // We need to invert one side of the drivetrain so that positive voltages
-    // result in both sides moving forward. Depending on how your robot's
-    // gearbox is constructed, you might have to invert the left side instead.
-    m_rightMotors.setInverted(true);
-  }
-
-  /////////////////////////////////////////////////////////////////////////////
   public void limitMotors(boolean shouldLimit) {
     // Configure current limiting
     DriveTrainPowerBudget budget = new DriveTrainPowerBudget(200,
@@ -463,38 +427,65 @@ public class WestCoastDriveTrain extends SubsystemBase {
   }
 
   /////////////////////////////////////////////////////////////////////////////
-  /**
-   * Converts a closed-loop velocity sensor value to SI units (meters/sec)
-   * 
-   * @param sensorVelocity Falcon sensor velocity in ticks per 100ms
+  /** 
+   * Applies PID controller gains to the left side of the drive train
    */
-  private static double falconVelocityToSI(double sensorVelocity) {
-    double ticksPerSecond = sensorVelocity * 10; // Convert to ticks per sec
-    return ticksPerSecond * WCDriveConstants.PhysicalSI.kMetersPerEncoderTick;
+  public void setLeftMotorGains() {
+    applyMotorPIDGains(m_leftFalcons[0], m_motorGains[kLeft], m_PIDIndex);
   }
+
+  /////////////////////////////////////////////////////////////////////////////
+  /** 
+   * Applies PID controller gains to the right side of the drive train
+   */
+  public void setRightMotorGains() {
+    applyMotorPIDGains(m_rightFalcons[0], m_motorGains[kRight], m_PIDIndex);
+  }
+
 
   /////////////////////////////////////////////////////////////////////////////
   /**
    * Converts falcon sensor distance (ticks) to SI units (meters)
    * 
-   * @param sensorTicks Falcon sensor distance (encoder ticks)
+   * @param sensorTicks Falcon internal sensor encoder distance (encoder ticks)
    */
-  private static double falconDistanceToSI(double sensorTicks) {
+  private static double falconEncoderDistanceToSI(double sensorTicks) {
     return sensorTicks * WCDriveConstants.PhysicalSI.kMetersPerEncoderTick;
   }
 
-  /////////////////////////////////////////////////////////////////////////////
-  /** Update left motor gains */
-  public void updateLeftMotorGains() {
-    applyMotorGains(m_leftFalcons[0], m_motorGains[kLeft], m_PIDIndex);
+    /////////////////////////////////////////////////////////////////////////////
+  /**
+   * Converts a closed-loop velocity sensor value to SI units (meters/sec)
+   * 
+   * @param sensorVelocity Falcon internal sensor encoder velocity (ticks per 100ms)
+   */
+  private static double falconEncoderVelocityToSI(double sensorVelocity) {
+    double ticksPerSecond = sensorVelocity * 10; // Convert to ticks per sec
+    return ticksPerSecond * WCDriveConstants.PhysicalSI.kMetersPerEncoderTick;
   }
 
-  /////////////////////////////////////////////////////////////////////////////
-  /** Update left motor gains */
-  public void updateRightMotorGains() {
-    applyMotorGains(m_rightFalcons[0], m_motorGains[kRight], m_PIDIndex);
-  }
+    /////////////////////////////////////////////////////////////////////////////
+  /** Configures drive subsystem motors */
+  private void ConfigureMotors() {
+    for (WPI_TalonFX motor : m_leftFalcons) {
+      motor.configFactoryDefault();
+    }
 
+    for (WPI_TalonFX motor : m_rightFalcons) {
+      motor.configFactoryDefault();
+    }
+
+    // Apply motor current limiting
+    limitMotors(true);
+
+    // TODO: apply closed-loop gains to Falcon motors
+
+    // We need to invert one side of the drivetrain so that positive voltages
+    // result in both sides moving forward. Depending on how your robot's
+    // gearbox is constructed, you might have to invert the left side instead.
+    m_rightMotors.setInverted(true);
+  }
+  
   /////////////////////////////////////////////////////////////////////////////
   /**
    * Apply a Gains object to a Falcon motor
@@ -502,7 +493,7 @@ public class WestCoastDriveTrain extends SubsystemBase {
    * @param motor Falcon motor to configure
    * @param gains Gains to apply to the motor
    */
-  private static void applyMotorGains(WPI_TalonFX motor, PIDGains gains, int pidIndex) {
+  private static void applyMotorPIDGains(WPI_TalonFX motor, PIDGains gains, int pidIndex) {
     // Timeout value (in milliseconds) used for commands used to configure the
     // motor. If nonzero, config functions will block while waiting for motor
     // configuration to succeed, and report an error if configuration times out.

@@ -65,5 +65,5 @@ public interface IDashboardTab {
   /**
    * Service dashboard tab widgets
    */
-  public void periodic();
+  public void update();
 }
