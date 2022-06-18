@@ -67,7 +67,8 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.math.trajectory.Trajectory;
+
+import frc.robot.commands.autonomous.AutoCommandFactory;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -76,12 +77,10 @@ import edu.wpi.first.math.trajectory.Trajectory;
  * project.
  */
 public class Robot extends TimedRobot {
-  private Command m_autonomousCommand;
-  // *** Pathweaver */
-  // String trajectoryJSON = "paths/YourPath.wpilib.json";
-  // Trajectory trajectory = new Trajectory();
-  // **--End Pathweaver */
+  /** Container with all robot subsystems */
   private RobotContainer m_robotContainer;
+  /** The current active autonomous routine */
+  private Command m_autonomousCommand;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -133,14 +132,11 @@ public class Robot extends TimedRobot {
     m_robotContainer.driveBaseSubsystem.resetEncoders();
     m_robotContainer.driveBaseSubsystem.zeroHeading();
 
-    // Schedule the present selected autonomous command
-    String selectedAutoName = m_robotContainer.dashboardSubsystem.getSelectedAutoRoutine();
-    Trajectory trajectory = m_robotContainer.pathweaverFactory.getTrajectory(selectedAutoName);
-    m_autonomousCommand = m_robotContainer.pathweaverFactory.createPathweaverCommand(trajectory,
-        m_robotContainer.driveBaseSubsystem);
+    // Get the name of the selected Auto routine from the dashboard
+    String autoName = m_robotContainer.dashboardSubsystem.getSelectedAutoRoutineName();
 
-    // Display the current Trajectory in the dashboard field view
-    m_robotContainer.dashboardSubsystem.setCurrentTrajectory(trajectory);
+    // Create and schedule a command to carry out the selected Auto routine
+    m_autonomousCommand = AutoCommandFactory.create(autoName, m_robotContainer);
     m_autonomousCommand.schedule();
   }
 

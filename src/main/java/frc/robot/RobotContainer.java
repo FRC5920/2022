@@ -65,13 +65,12 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.RobotState;
 import frc.robot.commands.ArcadeDriveByJoystick;
 import frc.robot.subsystems.driveBase.WestCoastDriveTrain;
 import frc.robot.subsystems.joystick.JoystickSubsystem;
 import frc.robot.subsystems.dashboard.DashboardSubsystem;
 import frc.robot.subsystems.runtimeState.BotStateSubsystem;
-import frc.robot.utility.PathweaverCommandFactory;
+import frc.robot.utility.PathweaverTrajectoryStore;
 
 /////////////////////////////////////////////////////////////////////////////
 /**
@@ -89,7 +88,7 @@ public class RobotContainer {
   public BotStateSubsystem botState;
   public WestCoastDriveTrain driveBaseSubsystem;
   public DashboardSubsystem dashboardSubsystem;
-  public static PathweaverCommandFactory pathweaverFactory;
+  public PathweaverTrajectoryStore trajectoryStore;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -99,7 +98,7 @@ public class RobotContainer {
     // Load Trajectory objects from JSON files under the 'deploy/paths' directory
     // Reference: Importing a PathWeaver JSON
     // https://docs.wpilib.org/en/stable/docs/software/pathplanning/pathweaver/integrating-robot-program.html
-    pathweaverFactory = new PathweaverCommandFactory(
+    trajectoryStore = new PathweaverTrajectoryStore(
       Filesystem.getDeployDirectory().toPath().resolve("paths/output"));
     
     // Initialize subsystems

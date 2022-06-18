@@ -53,7 +53,6 @@ package frc.robot.subsystems.driveBase;
 
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
@@ -117,17 +116,6 @@ public class WestCoastDriveTrain extends SubsystemBase {
    * controller period. By default on a CTRE Falcon, units are control_ticks per 0.1 sec.
    */
   private double m_velocitySensorError[] = { 0, 0 };
-
-  /**
-   * Feed-forward controller applied to drive train motors
-   * 
-   * This feed-forward controller applies gains to drive train motion based on values arrived at
-   * empirically via the system estimation methods provided in in WPILib documentation:
-   * https://docs.wpilib.org/en/stable/docs/software/pathplanning/system-identification/index.html
-   */
-  private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(
-      WCDriveConstants.Kinematics.ksVolts, WCDriveConstants.Kinematics.kvVoltSecondsPerMeter,
-      WCDriveConstants.Kinematics.kaVoltSecondsSquaredPerMeter);
 
   /** Differential drive controller used to drive motors */
   private final DifferentialDrive m_diffDrive = new DifferentialDrive(m_leftMotors, m_rightMotors);

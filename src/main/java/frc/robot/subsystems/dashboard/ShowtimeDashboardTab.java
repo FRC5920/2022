@@ -69,6 +69,7 @@ import frc.robot.RobotContainer;
 import frc.robot.subsystems.driveBase.WestCoastDriveTrain;
 import frc.robot.subsystems.runtimeState.BotStateSubsystem;
 import frc.robot.subsystems.runtimeState.BotStateSubsystem.RobotDirection;
+import frc.robot.utility.PathweaverTrajectoryStore;
 
 /**
  * A class supplying a ShuffleBoard tab containing the primary widgets visible on the drive station
@@ -80,11 +81,13 @@ public class ShowtimeDashboardTab extends Object implements IDashboardTab {
   private BotStateSubsystem m_botState;
   /** Chooser used to select the active autonomous routine */
   private SendableChooser<String> m_autoRoutineChooser;
-
+  /** Name of the selected auto routine */
+  private String m_selectedAutoRoutineName;
   /** Chooser used to enable/disable limits */
   private NetworkTableEntry m_currentLimitTableEntry;
-
-  /** A view of the field */
+  /** Factory used to create Trajectories from Pathweaver data */
+  private PathweaverTrajectoryStore m_pathweaverFactory;
+    /** View of the field */
   private final Field2d m_field2d = new Field2d();
 
   /** Drive base subsystem handle used to obtain the present robot pose */
@@ -98,6 +101,7 @@ public class ShowtimeDashboardTab extends Object implements IDashboardTab {
   ShowtimeDashboardTab(RobotContainer botContainer) {
     m_botState = botContainer.botState;
     m_driveBaseSubsystem = botContainer.driveBaseSubsystem;
+    m_pathweaverFactory = botContainer.trajectoryStore;
   }
 
   /**
@@ -114,7 +118,7 @@ public class ShowtimeDashboardTab extends Object implements IDashboardTab {
 
     // Create an auto chooser with entries for each Pathweaver Trajectory.
     m_autoRoutineChooser = new SendableChooser<String>();
-    String autoNames[] = botContainer.pathweaverFactory.getTrajectoryNames();
+    String autoNames[] = botContainer.trajectoryStore.getTrajectoryNames();
     Arrays.sort(autoNames); // Sort auto names into ascending lexical order
     for (int idx = 0; idx < autoNames.length; ++idx) {
       String name = autoNames[idx];
@@ -203,12 +207,26 @@ public class ShowtimeDashboardTab extends Object implements IDashboardTab {
    */
   @Override
   public void update() {
-    // SmartDashboard.putBoolean("Drive Direction",
-    // m_botState.DriveDirection == RobotDirection.Forward);
-    // SmartDashboard.putBoolean("Manual Mode", m_botState.ManualControl);
-    // SmartDashboard.putBoolean("Alliance", m_botState.isRedAlliance);
+    // Get the name of the selected auto routine.  If it has changed, send the corresponding
+    // trajectory (if there is one) to be displayed on the dashboard.
+    String selectedAutoName = getSelectedAutoName();
+    if (selectedAutoName != m_selectedAutoRoutineName) {
+      m_selectedAutoRoutineName = selectedAutoName;
+      Trajectory traj = m_pathweaverFactory.getTrajectory(selectedAutoName);
+      if (null != traj) {
+        m_field2d.getObject("traj").setTrajectory(traj);
+      } 
+      else {
+        // If the auto routine has no associated trajectory, clear the present Trajectory
+        Trajectory emptyTrajectory = new Trajectory();
+        m_field2d.getObject("traj").setTrajectory(emptyTrajectory);
+      }
+    }
 
+    // Update the robot pose on the dashboard
     m_field2d.setRobotPose(m_driveBaseSubsystem.getPose());
+
+    // Update motor limiting enablement
     m_botState.setCurrentLimitEnabled(m_currentLimitTableEntry.getBoolean(false));
   }
 
@@ -218,11 +236,7 @@ public class ShowtimeDashboardTab extends Object implements IDashboardTab {
    * @return A String containing the name of the presently selected Auto routine
    */
   public String getSelectedAutoName() {
-    return m_autoRoutineChooser.getSelected();
+    return m_selectedAutoRoutineName;
   }
 
-  /** Sets the current trajectory displayed by the Field2d widget */
-  public void setCurrentTrajectory(Trajectory trajectory) {
-    m_field2d.getObject("traj").setTrajectory(trajectory);
-  }
 }
